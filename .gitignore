@@ -1,0 +1,6 @@
+SnakeWii.elf
+build/main.d
+boot.dol
+build/main.o
+build/SnakeWii.elf.map
+SnakeWii.dol

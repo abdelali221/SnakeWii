@@ -11,12 +11,15 @@ const uint8_t ROWS = (20 + VER_OFFSET);
 
 static void *xfb = NULL;
 static GXRModeObj *Vmode = NULL;
+
 bool Resume = false;
 bool GenBall = true;
 bool Start = false;
+bool PressedButton = false;
+bool BallEaten = false;
 
-int BallX, BallY;
-int SnakeX = COLS/2;
+int BallX, BallY, ANSBallX, ANSBallY;
+int SnakeX = (COLS/2) + 4;
 int SnakeY = ROWS/2;
 int VSnakeX = 1;
 int VSnakeY = 0;
@@ -24,7 +27,7 @@ int Lifes = 3;
 int Score = 0;
 int SnakeLength = 2;
 int counter = 0;
-int SnakePOSbuffer[255][2];
+int SnakePOSbuffer[6000][2];
 
 static void SystemInit() {
 
@@ -56,25 +59,29 @@ void CheckController() {
 	u32 pressed = WPAD_ButtonsDown(0);
 	if (pressed & WPAD_BUTTON_HOME) {
 		exit(0);
-	} else if ((pressed & WPAD_BUTTON_UP) && (VSnakeX != 0 || !Start)) {
+	} else if ((pressed & WPAD_BUTTON_UP) && (VSnakeX != 0 || !Start) && !PressedButton) {
+		PressedButton = true;
 		if (!Start) {
 			Start = true;
 		}
 		VSnakeY = -1;
 		VSnakeX = 0;
-	} else if ((pressed & WPAD_BUTTON_DOWN) && (VSnakeX != 0 || !Start)) {
+	} else if ((pressed & WPAD_BUTTON_DOWN) && (VSnakeX != 0 || !Start) && !PressedButton) {
+		PressedButton = true;
 		if (!Start) {
 			Start = true;
 		}
 		VSnakeY = 1;
 		VSnakeX = 0;
-	} else if ((pressed & WPAD_BUTTON_LEFT) && (VSnakeY != 0 || !Start)) {
+	} else if ((pressed & WPAD_BUTTON_LEFT) && (VSnakeY != 0 || !Start) && !PressedButton) {
+		PressedButton = true;
 		if (!Start) {
 			Start = true;
 		}
 		VSnakeX = -1;
 		VSnakeY = 0;
-	} else if ((pressed & WPAD_BUTTON_RIGHT) && (VSnakeY != 0 || !Start)) {
+	} else if ((pressed & WPAD_BUTTON_RIGHT) && (VSnakeY != 0 || !Start) && !PressedButton) {
+		PressedButton = true;
 		if (!Start) {
 			Start = true;
 		}
@@ -98,9 +105,9 @@ void POSCursor(uint8_t X, uint8_t Y) {
 }
 
 static void RenderBorders(bool DELAY) {
-	for (int Y = VER_OFFSET; Y <= ROWS; Y++) {
+	for (size_t Y = VER_OFFSET; Y <= ROWS; Y++) {
   
-		for (int X = HOR_OFFSET; X <= COLS; X++) {
+		for (size_t X = HOR_OFFSET; X <= COLS; X++) {
   
 			if ( ( (X == HOR_OFFSET || X == COLS) && (Y >= VER_OFFSET && Y <= ROWS) )|| (Y == VER_OFFSET || Y == ROWS)) {
   				POSCursor(X, Y);
@@ -114,11 +121,15 @@ static void RenderBorders(bool DELAY) {
 }
 
 static void GenerateBall() {
-	while (BallX < HOR_OFFSET + 1 || BallX > COLS || BallY < VER_OFFSET + 1 || BallY > ROWS) {
-		BallX = HOR_OFFSET + 1 + rand() % (COLS - HOR_OFFSET - 1);
-		BallY = VER_OFFSET + 1 + rand() % (ROWS - VER_OFFSET - 1);
+	for (size_t i = 1; i <= SnakeLength; i++) {
+		while (BallX < HOR_OFFSET + 1 || BallX > COLS || BallY < VER_OFFSET + 1 || BallY > ROWS || (BallX == SnakePOSbuffer[i][0] && BallY == SnakePOSbuffer[i][1]) || (BallX == ANSBallX && BallY == ANSBallY)) {
+			BallX = HOR_OFFSET + 1 + rand() % (COLS - HOR_OFFSET - 1);
+			BallY = VER_OFFSET + 1 + rand() % (ROWS - VER_OFFSET - 1);
+		}
 	}
-
+	BallEaten = false;
+	ANSBallX = BallX;
+	ANSBallY = BallY;
 	POSCursor(BallX, BallY);
 	printf("O");
 }
@@ -134,13 +145,30 @@ static void RenderSnake() {
 		SnakePOSbuffer[i][0] = SnakePOSbuffer[i - 1][0];
 		SnakePOSbuffer[i][1] = SnakePOSbuffer[i - 1][1];
 	}
-	for (size_t i = 2; i < SnakeLength; i++) {
-		if (BallX == SnakePOSbuffer[i][0] && SnakePOSbuffer[i][1]) {
-			POSCursor(BallX, BallY);
-			printf("O");
+
+}
+
+static void GameOver() {
+	printf("\x1b[2J");
+	POSCursor(30, 10);
+	printf("Game Over!");
+	POSCursor(27, 12);
+	printf("Your Score : %d", Score);
+	POSCursor(14, 14);
+	printf("Press HOME to exit or A to restart the game");
+
+	while (1) {
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if (pressed & WPAD_BUTTON_HOME) {
+			exit(0);
+		} else if (pressed & WPAD_BUTTON_A) {
+			printf("\x1b[2J");
+			RenderBorders(true);
+			return;
 		}
 	}
-	
+
 }
 
 static void Loose() {
@@ -149,22 +177,19 @@ static void Loose() {
 	RenderBorders(false);
 	GenBall = true;
 	Start = false;
-	for (size_t i = 0; i < 254; i++) {
+	for (size_t i = 1; i < 254; i++) {
 		SnakePOSbuffer[i][0] = 0;
 		SnakePOSbuffer[i][1] = 0;
 	}
-	
+	SnakeX = (COLS/2) + 4;
+	SnakeY = ROWS/2;
+	VSnakeX = 0;
+	VSnakeY = 0;
+	SnakeLength = 2;
 	if (Lifes > 0) {
 		Lifes--;
-		SnakeX = COLS/2;
-		SnakeY = ROWS/2;
-		VSnakeX = 0;
-		VSnakeY = 0;
 	} else {
-		SnakeX = COLS/2;
-		SnakeY = ROWS/2;
-		VSnakeX = 0;
-		VSnakeY = 0;
+		GameOver();
 		Lifes = 3;
 		Score = 0;
 	}
@@ -172,18 +197,18 @@ static void Loose() {
 
 static void ManageSnakePos() {
 	CheckController();
-	if (SnakeX < HOR_OFFSET || SnakeX > COLS || SnakeY < VER_OFFSET || SnakeY > ROWS) {
+	if (SnakeX < HOR_OFFSET + 1 || SnakeX > COLS - 1 || SnakeY < VER_OFFSET + 1 || SnakeY > ROWS - 1) {
 		Loose();
 	}
-	if ( SnakeLength > 4) {
-		for (size_t i = 2; i < SnakeLength; i++) {
+	if (SnakeLength > 4) {
+		for (size_t i = 4; i < SnakeLength + 1; i++) {
 			if (SnakeX == SnakePOSbuffer[i][0] && SnakeY == SnakePOSbuffer[i][1]) {
 				Loose();
 			}
 		}
 	}
 		
-	if (SnakeX == BallX && SnakeY == BallY) {
+	if (SnakeX == BallX && SnakeY == BallY && !BallEaten) {
 		Score++;
 		SnakeLength++;
 		GenBall = true;
@@ -194,13 +219,12 @@ static void ManageSnakePos() {
 
 static void PrintGameStats() {
 	POSCursor(0, ROWS + 2);
-	printf(" Score : %d ", Score);
+	printf(" Score : %d \n", Score);
+	printf(" Lifes : %d ", Lifes);
 }
 static void RunGame() {
 	sleep(500);
 	PrintGameStats();
-	ManageSnakePos();
-	RenderSnake();
 	if (counter < 4) {
 		counter++;
 	} else {
@@ -210,6 +234,9 @@ static void RunGame() {
 		GenerateBall();
 		GenBall = false;
 	}
+	ManageSnakePos();
+	RenderSnake();
+	PressedButton = false;
 	VIDEO_WaitVSync();
 }
 
