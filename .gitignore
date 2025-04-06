@@ -4,3 +4,6 @@ boot.dol
 build/main.o
 build/SnakeWii.elf.map
 SnakeWii.dol
+apps/SnakeWii/icon.png
+apps/SnakeWii/meta.xml
+SnakeWii.zip
