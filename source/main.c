@@ -217,6 +217,7 @@ static void GameOver() {
 			exit(0);
 		} else if (pressed & WPAD_BUTTON_A) {
 			printf("\x1b[2J");
+			DifficultySelect();
 			RenderBorders(true);
 			return;
 		}
