@@ -27,6 +27,7 @@ int Lifes = 3;
 int Score = 0;
 int SnakeLength = 2;
 int counter = 0;
+int Speed;
 int SnakePOSbuffer[6000][2];
 
 static void SystemInit() {
@@ -148,6 +149,58 @@ static void RenderSnake() {
 
 }
 
+static void DifficultySelect() {
+	int Selection = 10;
+	POSCursor(4, 8);
+	printf("Choose the difficulty :");
+	POSCursor(10, 10);
+	printf("Easy");
+	POSCursor(10, 12);
+	printf("Medium");
+	POSCursor(10, 14);
+	printf("Hard");
+	POSCursor(9, Selection);
+	printf(">");
+	while(1) {
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+
+		if ((pressed & WPAD_BUTTON_DOWN) && Selection < 14) {
+			POSCursor(9, Selection);
+			printf(" ");
+			Selection = Selection + 2;
+			POSCursor(9, Selection);
+			printf(">");
+		} else if ((pressed & WPAD_BUTTON_UP) && Selection > 10) {
+			POSCursor(9, Selection);
+			printf(" ");
+			Selection = Selection - 2;
+			POSCursor(9, Selection);
+			printf(">");
+		} else if (pressed & WPAD_BUTTON_A) {
+			printf("\x1b[2J");
+			switch (Selection)
+			{
+				case 10:
+					Speed = 500;
+				break;
+				
+				case 12:
+					Speed = 250;
+				break;
+
+				case 14:
+					Speed = 100;
+				break;
+
+				default:
+				break;
+			}
+			return;
+		}
+	}
+}
+
 static void GameOver() {
 	printf("\x1b[2J");
 	POSCursor(30, 10);
@@ -174,7 +227,6 @@ static void GameOver() {
 static void Loose() {
 	printf("\x1b[2J");
 	sleep(1000);
-	RenderBorders(false);
 	GenBall = true;
 	Start = false;
 	for (size_t i = 1; i < 254; i++) {
@@ -187,6 +239,7 @@ static void Loose() {
 	VSnakeY = 0;
 	SnakeLength = 2;
 	if (Lifes > 0) {
+		RenderBorders(false);
 		Lifes--;
 	} else {
 		GameOver();
@@ -223,14 +276,14 @@ static void PrintGameStats() {
 	printf(" Lifes : %d ", Lifes);
 }
 static void RunGame() {
-	sleep(500);
+	sleep(Speed);
 	PrintGameStats();
-	if (counter < 4) {
+	if (counter < 4*(1000/Speed)) {
 		counter++;
 	} else {
 		counter = 0;
 	}
-	if (counter == 3 && GenBall) {
+	if (counter == 3*(1000/Speed) && GenBall) {
 		GenerateBall();
 		GenBall = false;
 	}
@@ -244,7 +297,7 @@ int main(int argc, char **argv) {
 	srand(time(NULL));
 	SystemInit();
 	printf("\x1b[2J");
-	printf("Snake Wii\nWritten By Abdelali221\nGithub : https://github.com/abdelali221/\n");
+	printf("SnakeWii\nMade By Abdelali221\nGithub : https://github.com/abdelali221/\n");
 	printf("\nPress A to start...");
 
 	while(!Resume) {
@@ -258,6 +311,7 @@ int main(int argc, char **argv) {
 	}
 
 	printf("\x1b[2J");
+	DifficultySelect();
 	RenderBorders(true);
 
 	while (1) {
