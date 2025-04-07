@@ -7,4 +7,4 @@ Just use the D-pad (Hold the Wiimote Vertically) to move the snake and avoid tou
 
 # Special thanks : 
 
-@Posifurg : Beta-Tester
+https://github.com/Posifurg : Beta-Tester
