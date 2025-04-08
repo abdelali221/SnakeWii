@@ -24,13 +24,14 @@ bool GenBall = true;
 bool Start = false;
 bool PressedButton = false;
 bool BallEaten = false;
+bool doPause = false;
 
 int BallX, BallY, ANSBallX, ANSBallY;
 int SnakeX = (COLS/2) + 4;
 int SnakeY = ROWS/2;
 int VSnakeX = 1;
 int VSnakeY = 0;
-int Lifes = 3;
+int Lives = 3;
 int Score = 0;
 int SnakeLength = 2;
 int counter = 0;
@@ -43,6 +44,10 @@ static void SystemInit() {
 
 	WPAD_Init();
 
+	ASND_Init();
+
+	MP3Player_Init();
+	
 	Vmode = VIDEO_GetPreferredMode(NULL);
 
 	xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(Vmode));
@@ -62,6 +67,10 @@ static void SystemInit() {
 	
 }
 
+void ResetMP3() {
+	MP3Player_Stop();
+	MP3Player_Init();	
+}
 void CheckController() {
 	WPAD_ScanPads();
 	u32 pressed = WPAD_ButtonsDown(0);
@@ -95,6 +104,8 @@ void CheckController() {
 		}
 		VSnakeX = 1;
 		VSnakeY = 0;
+	} else if (pressed & WPAD_BUTTON_PLUS) {
+		doPause = true; 
 	}
 }
 
@@ -112,7 +123,7 @@ void POSCursor(uint8_t X, uint8_t Y) {
 	printf("\x1b[%d;%dH", Y, X);
 }
 
-static void RenderBorders(bool DELAY) {
+static void RenderBorders(bool DELAY, bool PLAYSOUND) {
 	for (size_t Y = VER_OFFSET; Y <= ROWS; Y++) {
   
 		for (size_t X = HOR_OFFSET; X <= COLS; X++) {
@@ -126,6 +137,10 @@ static void RenderBorders(bool DELAY) {
   			}
 		}
 	}
+	if (PLAYSOUND) {
+		ResetMP3();
+		MP3Player_PlayBuffer(start_mp3, start_mp3_size, NULL);
+	}	
 }
 
 static void GenerateBall() {
@@ -204,21 +219,21 @@ static void DifficultySelect() {
 				break;
 			}
 			return;
+		} else if (pressed & WPAD_BUTTON_HOME) {
+			exit(0);
 		}
 	}
 }
 
 static void GameOver() {
-	printf("\x1b[2J");
-	MP3Player_PlayBuffer(lost_mp3, lost_mp3_size, NULL);
 	POSCursor(30, 10);
 	printf("Game Over!");
 	POSCursor(27, 12);
 	printf("Your Score : %d", Score);
 	POSCursor(14, 14);
 	printf("Press HOME to exit or A to restart the game");
-
-	while (1) {
+	sleep(2000);
+	while (true) {
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);
 		if (pressed & WPAD_BUTTON_HOME) {
@@ -226,7 +241,7 @@ static void GameOver() {
 		} else if (pressed & WPAD_BUTTON_A) {
 			printf("\x1b[2J");
 			DifficultySelect();
-			RenderBorders(true);
+			RenderBorders(true, true);
 			return;
 		}
 	}
@@ -234,7 +249,6 @@ static void GameOver() {
 }
 
 static void Loose() {
-	sleep(2000);
 	printf("\x1b[2J");
 	GenBall = true;
 	Start = false;
@@ -247,12 +261,17 @@ static void Loose() {
 	VSnakeX = 0;
 	VSnakeY = 0;
 	SnakeLength = 2;
-	if (Lifes > 0) {
-		RenderBorders(false);
-		Lifes--;
+	ResetMP3();
+	if (Lives > 0) {
+		MP3Player_PlayBuffer(lost_mp3, lost_mp3_size, NULL);
+		sleep(2000);
+		RenderBorders(false, true);
+		Lives--;
 	} else {
+		MP3Player_PlayBuffer(died_mp3, died_mp3_size, NULL);
+		sleep(4000);
 		GameOver();
-		Lifes = 3;
+		Lives = 3;
 		Score = 0;
 	}
 }
@@ -265,13 +284,14 @@ static void ManageSnakePos() {
 	if (SnakeLength > 4) {
 		for (size_t i = 4; i < SnakeLength + 1; i++) {
 			if (SnakeX == SnakePOSbuffer[i][0] && SnakeY == SnakePOSbuffer[i][1]) {
-				MP3Player_PlayBuffer(lost_mp3, lost_mp3_size, NULL);
 				Loose();
 			}
 		}
 	}
 		
 	if (SnakeX == BallX && SnakeY == BallY && !BallEaten) {
+		ResetMP3();
+		MP3Player_PlayBuffer(increase_mp3, increase_mp3_size, NULL);
 		Score++;
 		SnakeLength++;
 		GenBall = true;
@@ -283,10 +303,37 @@ static void ManageSnakePos() {
 static void PrintGameStats() {
 	POSCursor(0, ROWS + 2);
 	printf(" Score : %d \n", Score);
-	printf(" Lifes : %d ", Lifes);
+	printf(" Lives : %d ", Lives);
 }
+
+static void Pause() {
+	printf("\x1b[2J");
+	POSCursor(30, 10);
+	printf("Paused!");
+	POSCursor(27, 12);
+	printf("Press + to resume...");
+	while (1) {
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if (pressed & WPAD_BUTTON_PLUS) {
+			printf("\x1b[2J");
+			RenderBorders(false, false);
+			for (size_t i = 0; i < SnakeLength; i++) {
+				POSCursor(SnakePOSbuffer[SnakeLength][0], SnakePOSbuffer[SnakeLength][1]);
+				printf("#");
+			}
+			PrintGameStats();
+			doPause = false;
+			return;
+		}
+	}
+}
+
 static void RunGame() {
 	sleep(Speed);
+	if (doPause) {
+		Pause();
+	}
 	PrintGameStats();
 	if (counter < 4*(1000/Speed)) {
 		counter++;
@@ -322,7 +369,7 @@ int main(int argc, char **argv) {
 
 	printf("\x1b[2J");
 	DifficultySelect();
-	RenderBorders(true);
+	RenderBorders(true, true);
 
 	while (1) {
 		RunGame();
