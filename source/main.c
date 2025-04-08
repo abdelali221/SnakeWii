@@ -3,6 +3,13 @@
 #include <gccore.h>
 #include <wiiuse/wpad.h>
 #include <time.h>
+#include <asndlib.h>
+#include <mp3player.h>
+
+#include "died_mp3.h"
+#include "increase_mp3.h"
+#include "lost_mp3.h"
+#include "start_mp3.h"
 
 const uint8_t HOR_OFFSET = 10;
 const uint8_t VER_OFFSET = 0;
@@ -203,6 +210,7 @@ static void DifficultySelect() {
 
 static void GameOver() {
 	printf("\x1b[2J");
+	MP3Player_PlayBuffer(lost_mp3, lost_mp3_size, NULL);
 	POSCursor(30, 10);
 	printf("Game Over!");
 	POSCursor(27, 12);
@@ -226,11 +234,11 @@ static void GameOver() {
 }
 
 static void Loose() {
+	sleep(2000);
 	printf("\x1b[2J");
-	sleep(1000);
 	GenBall = true;
 	Start = false;
-	for (size_t i = 1; i < 254; i++) {
+	for (size_t i = 1; i < 599; i++) {
 		SnakePOSbuffer[i][0] = 0;
 		SnakePOSbuffer[i][1] = 0;
 	}
@@ -257,6 +265,7 @@ static void ManageSnakePos() {
 	if (SnakeLength > 4) {
 		for (size_t i = 4; i < SnakeLength + 1; i++) {
 			if (SnakeX == SnakePOSbuffer[i][0] && SnakeY == SnakePOSbuffer[i][1]) {
+				MP3Player_PlayBuffer(lost_mp3, lost_mp3_size, NULL);
 				Loose();
 			}
 		}
