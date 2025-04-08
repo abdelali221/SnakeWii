@@ -310,7 +310,7 @@ static void Pause() {
 	printf("\x1b[2J");
 	POSCursor(30, 10);
 	printf("Paused!");
-	POSCursor(27, 12);
+	POSCursor(25, 12);
 	printf("Press + to resume...");
 	while (1) {
 		WPAD_ScanPads();
@@ -318,13 +318,19 @@ static void Pause() {
 		if (pressed & WPAD_BUTTON_PLUS) {
 			printf("\x1b[2J");
 			RenderBorders(false, false);
-			for (size_t i = 0; i < SnakeLength; i++) {
-				POSCursor(SnakePOSbuffer[SnakeLength][0], SnakePOSbuffer[SnakeLength][1]);
+			for (size_t i = 1; i < SnakeLength; i++) {
+				POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
 				printf("#");
 			}
+			if (!BallEaten && !GenBall) {
+				POSCursor(BallX, BallY);
+				printf("O");
+			}			
 			PrintGameStats();
 			doPause = false;
 			return;
+		} else if (pressed & WPAD_BUTTON_HOME) {
+			exit(0);
 		}
 	}
 }
