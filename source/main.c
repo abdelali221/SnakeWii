@@ -10,6 +10,13 @@
 #include "increase_mp3.h"
 #include "lost_mp3.h"
 #include "start_mp3.h"
+#include "100_mp3.h"
+#include "easy_mp3.h"
+#include "medium_mp3.h"
+#include "hard_mp3.h"
+#include "pause_mp3.h"
+#include "resume_mp3.h"
+#include "select_mp3.h"
 
 const uint8_t HOR_OFFSET = 10;
 const uint8_t VER_OFFSET = 0;
@@ -193,26 +200,38 @@ static void DifficultySelect() {
 			Selection = Selection + 2;
 			POSCursor(9, Selection);
 			printf(">");
+			ResetMP3();
+			MP3Player_PlayBuffer(select_mp3, select_mp3_size, NULL);
+			sleep(1000);
 		} else if ((pressed & WPAD_BUTTON_UP) && Selection > 10) {
 			POSCursor(9, Selection);
 			printf(" ");
 			Selection = Selection - 2;
 			POSCursor(9, Selection);
 			printf(">");
+			ResetMP3();
+			MP3Player_PlayBuffer(select_mp3, select_mp3_size, NULL);
+			sleep(1000);
 		} else if (pressed & WPAD_BUTTON_A) {
 			printf("\x1b[2J");
 			switch (Selection)
 			{
 				case 10:
 					Speed = 500;
+					ResetMP3();
+					MP3Player_PlayBuffer(easy_mp3, easy_mp3_size, NULL);
 				break;
 				
 				case 12:
 					Speed = 250;
+					ResetMP3();
+					MP3Player_PlayBuffer(medium_mp3, medium_mp3_size, NULL);
 				break;
 
 				case 14:
 					Speed = 100;
+					ResetMP3();
+					MP3Player_PlayBuffer(hard_mp3, hard_mp3_size, NULL);
 				break;
 
 				default:
@@ -312,10 +331,15 @@ static void Pause() {
 	printf("Paused!");
 	POSCursor(25, 12);
 	printf("Press + to resume...");
+	ResetMP3();
+	MP3Player_PlayBuffer(pause_mp3, pause_mp3_size, NULL);
+	sleep(1500);
 	while (1) {
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);
 		if (pressed & WPAD_BUTTON_PLUS) {
+			ResetMP3();
+			MP3Player_PlayBuffer(resume_mp3, resume_mp3_size, NULL);
 			printf("\x1b[2J");
 			RenderBorders(false, false);
 			for (size_t i = 1; i < SnakeLength; i++) {
