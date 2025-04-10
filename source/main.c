@@ -202,7 +202,6 @@ static void DifficultySelect() {
 			printf(">");
 			ResetMP3();
 			MP3Player_PlayBuffer(select_mp3, select_mp3_size, NULL);
-			sleep(1000);
 		} else if ((pressed & WPAD_BUTTON_UP) && Selection > 10) {
 			POSCursor(9, Selection);
 			printf(" ");
@@ -211,7 +210,6 @@ static void DifficultySelect() {
 			printf(">");
 			ResetMP3();
 			MP3Player_PlayBuffer(select_mp3, select_mp3_size, NULL);
-			sleep(1000);
 		} else if (pressed & WPAD_BUTTON_A) {
 			printf("\x1b[2J");
 			switch (Selection)
@@ -251,7 +249,6 @@ static void GameOver() {
 	printf("Your Score : %d", Score);
 	POSCursor(14, 14);
 	printf("Press HOME to exit or A to restart the game");
-	sleep(2000);
 	while (true) {
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);
@@ -333,7 +330,6 @@ static void Pause() {
 	printf("Press + to resume...");
 	ResetMP3();
 	MP3Player_PlayBuffer(pause_mp3, pause_mp3_size, NULL);
-	sleep(1500);
 	while (1) {
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);
