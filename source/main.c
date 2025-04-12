@@ -310,6 +310,7 @@ static void ManageSnakePos() {
 		MP3Player_PlayBuffer(increase_mp3, increase_mp3_size, NULL);
 		Score++;
 		SnakeLength++;
+		BallEaten = true;
 		GenBall = true;
 	}
 	SnakeX = SnakeX + VSnakeX;
