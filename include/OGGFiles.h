@@ -12,6 +12,5 @@
 #include "pause_ogg.h"
 #include "resume_ogg.h"
 #include "select_ogg.h"
-#include "sample_ogg.h"
 
 #endif

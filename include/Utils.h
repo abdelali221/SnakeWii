@@ -9,5 +9,6 @@ void CheckController();
 void sleep(u32 delay);
 void RenderBorders(bool DELAY, bool PLAYSOUND);
 void GenerateBall();
+void DifficultySelect();
 
 #endif

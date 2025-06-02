@@ -1,8 +1,6 @@
 #ifndef _VARIABLES_H_
 #define _VARIABLES_H_
 #include "WiiLibs.h"
-#define ROWS 20 + VER_OFFSET
-#define COLS 50 + HOR_OFFSET
 #define HOR_OFFSET 10
 #define VER_OFFSET 0
 
@@ -12,6 +10,10 @@ extern bool Start;
 extern bool PressedButton;
 extern bool BallEaten;
 extern bool doPause;
+extern uint16_t Speed;
+
+extern const uint8_t ROWS;
+extern const uint8_t COLS;
 
 extern uint8_t BallX, BallY, ANSBallX, ANSBallY;
 extern uint8_t SnakeX;
