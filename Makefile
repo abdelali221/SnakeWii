@@ -19,7 +19,7 @@ TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source
 DATA		:=	data
-INCLUDES	:=
+INCLUDES	:=	include
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -33,13 +33,15 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lwiiuse -lbte -lmad -lasnd -logc -lm
+LIBS	:=	-lwiiuse -lbte -lmad -lasnd -logc -lm -lvorbisidec -logg -lgrrlib -lpngu `$(PREFIX)pkg-config freetype2 libpng libjpeg --libs` -lfat
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=
+LIBDIRS	:=$(DEVKITPRO)/portlibs/wii \
+			$(DEVKITPRO)/portlibs/ppc
+		
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -127,7 +129,7 @@ $(OFILES_SOURCES) : $(HFILES)
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .mp3 extension
 #---------------------------------------------------------------------------------
-%.mp3.o	%_mp3.h :	%.mp3
+%.ogg.o	%_ogg.h :	%.ogg
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	$(bin2o)
