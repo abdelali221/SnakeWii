@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstdint": "c",
+        "math.h": "c",
+        "sample_mp3.h": "c",
+        "increase_mp3.h": "c"
+    }
+}

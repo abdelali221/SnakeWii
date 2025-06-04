@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2008 Francisco Muñoz 'Hermes' <www.elotrolado.net>
+ Copyright (c) 2008 Francisco Muï¿½oz 'Hermes' <www.elotrolado.net>
  All rights reserved.
 
  Proper (standard) vorbis usage by Tantric, 2009
@@ -268,7 +268,7 @@ static private_data_ogg private_ogg;
 
 // OGG thread control
 
-#define STACKSIZE		8192
+#define STACKSIZE		32768
 
 static u8 oggplayer_stack[STACKSIZE];
 static lwpq_t oggplayer_queue = LWP_TQUEUE_NULL;
@@ -469,7 +469,7 @@ int PlayOgg(const void *buffer, s32 len, int time_pos, int mode)
 		mem_close(private_ogg.fd); // mem_close() can too close files from devices
 		private_ogg.fd = -1;
 		ogg_thread_running = 0;
-		return -1;
+		return -2;
 	}
 
 	if (LWP_CreateThread(&h_oggplayer, (void *) ogg_player_thread,
@@ -478,7 +478,7 @@ int PlayOgg(const void *buffer, s32 len, int time_pos, int mode)
 		ogg_thread_running = 0;
 		ov_clear(&private_ogg.vf);
 		private_ogg.fd = -1;
-		return -1;
+		return -3;
 	}
 	return 0;
 }

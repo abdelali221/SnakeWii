@@ -13,3 +13,34 @@ void RenderSnake() {
 	}
 
 }
+
+void ManageSnakePos() {
+	CheckController();
+	if (SnakeX < HOR_OFFSET + 1 || SnakeX > COLS - 1 || SnakeY < VER_OFFSET + 1 || SnakeY > ROWS - 1) {
+		printf("\x1b[2J");
+		POSCursor(25, 10);
+		printf("Ouch! Stupid Wall!");
+		Loose();
+	}
+	if (SnakeLength > 4) {
+		for (size_t i = 4; i < SnakeLength + 1; i++) {
+			if (SnakeX == SnakePOSbuffer[i][0] && SnakeY == SnakePOSbuffer[i][1]) {
+				printf("\x1b[2J");
+				POSCursor(25, 10);
+				printf("Ouch! That Hurts!");
+				Loose();
+			}
+		}
+	}
+		
+	if (SnakeX == BallX && SnakeY == BallY && !BallEaten) {
+		 
+		Play(INCREASE);
+		Score++;
+		SnakeLength++;
+		BallEaten = true;
+		GenBall = true;
+	}
+	SnakeX = SnakeX + VSnakeX;
+	SnakeY = SnakeY + VSnakeY;
+}

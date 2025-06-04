@@ -6,7 +6,5 @@
 #include <gccore.h>
 #include <wiiuse/wpad.h>
 #include <time.h>
-#include <asndlib.h>
-#include "oggplayer.h"
 
 #endif

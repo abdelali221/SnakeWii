@@ -1,4 +1,40 @@
 #include "Utils.h"
+#include "Audio.h"
+
+uint8_t Selection;
+
+
+void SystemInit() {
+	static void *xfb = NULL;
+	static GXRModeObj *Vmode = NULL;
+
+	VIDEO_Init();
+
+	WPAD_Init();
+
+	ASND_Init();
+	MP3Player_Init();
+
+	Vmode = VIDEO_GetPreferredMode(NULL);
+
+	xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(Vmode));
+
+	console_init(xfb, 20, 20, Vmode->fbWidth, Vmode->xfbHeight, Vmode->fbWidth * VI_DISPLAY_PIX_SZ);
+
+	VIDEO_Configure(Vmode);
+
+	VIDEO_SetNextFramebuffer(xfb);
+
+	VIDEO_ClearFrameBuffer(Vmode, xfb, COLOR_BLACK);
+
+	VIDEO_SetBlack(false);
+
+	VIDEO_Flush();
+
+	VIDEO_WaitVSync();
+	if(Vmode->viTVMode&VI_NON_INTERLACE) VIDEO_WaitVSync();
+	
+}
 
 void CheckController() {
 	WPAD_ScanPads();
@@ -38,6 +74,25 @@ void CheckController() {
 	}
 }
 
+void RenderBorders(bool DELAY, bool PLAYSOUND) {
+	for (size_t Y = VER_OFFSET; Y <= ROWS; Y++) {
+  
+		for (size_t X = HOR_OFFSET; X <= COLS; X++) {
+  
+			if ( ( (X == HOR_OFFSET || X == COLS) && (Y >= VER_OFFSET && Y <= ROWS) )|| (Y == VER_OFFSET || Y == ROWS)) {
+  				POSCursor(X, Y);
+				if (DELAY) {
+  					sleep(20);
+				}
+		  		printf("#");
+  			}
+		}
+	}
+	if (PLAYSOUND) {
+		Play(START);
+	}	
+}
+
 void sleep(u32 delay) {
 	u32 ticks = delay/20;
 	u32 start = 0;
@@ -48,24 +103,10 @@ void sleep(u32 delay) {
 	}
 }
 
-void RenderBorders(bool DELAY, bool PLAYSOUND) {
-	for (size_t Y = VER_OFFSET; Y <= ROWS; Y++) {
-  
-		for (size_t X = HOR_OFFSET; X <= COLS; X++) {
-  
-			if ( ( (X == HOR_OFFSET || X == COLS) && (Y >= VER_OFFSET && Y <= ROWS) )|| (Y == VER_OFFSET || Y == ROWS)) {
-  				POSCursor(X, Y);
-				if (DELAY) {
-  					sleep(10);
-				}
-		  		printf("#");
-				VIDEO_WaitVSync();
-  			}
-		}
-	}
-	if (PLAYSOUND) {
-		PlayOgg(start_ogg, start_ogg_size, 0, OGG_ONE_TIME);
-	}	
+void PrintGameStats() {
+	POSCursor(0, ROWS + 2);
+	printf(" Score : %d \n", Score);
+	printf(" Lives : %d ", Lives);
 }
 
 void GenerateBall() {
@@ -82,8 +123,39 @@ void GenerateBall() {
 	printf("O");
 }
 
+void Pause() {
+	printf("\x1b[2J");
+	POSCursor(30, 10);
+	printf("Paused!");
+	POSCursor(25, 12);
+	printf("Press + to resume...");
+	Play(PAUSE);
+	while (1) {
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if (pressed & WPAD_BUTTON_PLUS) {
+			Play(RESUME);
+			printf("\x1b[2J");
+			RenderBorders(false, false);
+			for (size_t i = 1; i < SnakeLength; i++) {
+				POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
+				printf("#");
+			}
+			if (!BallEaten && !GenBall) {
+				POSCursor(BallX, BallY);
+				printf("O");
+			}			
+			PrintGameStats();
+			doPause = false;
+			return;
+		} else if (pressed & WPAD_BUTTON_HOME) {
+			exit(0);
+		}
+	}
+}
+
 void DifficultySelect() {
-	uint8_t Selection = 10;
+	Selection = 10;
 	POSCursor(4, 8);
 	printf("Choose the difficulty :");
 	POSCursor(10, 10);
@@ -104,32 +176,32 @@ void DifficultySelect() {
 			Selection = Selection + 2;
 			POSCursor(9, Selection);
 			printf(">");
-			PlayOgg(select_ogg, select_ogg_size,  0, OGG_ONE_TIME);
+			Play(SELECT);
 		} else if ((pressed & WPAD_BUTTON_UP) && Selection > 10) {
 			POSCursor(9, Selection);
 			printf(" ");
 			Selection = Selection - 2;
 			POSCursor(9, Selection);
 			printf(">");
-			PlayOgg(select_ogg, select_ogg_size,  0, OGG_ONE_TIME);
+			Play(SELECT);
 		} else if (pressed & WPAD_BUTTON_A) {
 			printf("\x1b[2J");
 			 
 			switch (Selection)
 			{
 				case 10:
-					Speed = 500;
-					PlayOgg(easy_ogg, easy_ogg_size,  0, OGG_ONE_TIME);
+					Speed = 250;
+					Play(EASY);
 				break;
 				
 				case 12:
-					Speed = 250;
-					PlayOgg(medium_ogg, medium_ogg_size,  0, OGG_ONE_TIME);
+					Speed = 125;
+					Play(MEDIUM);
 				break;
 
 				case 14:
-					Speed = 100;
-					PlayOgg(hard_ogg, hard_ogg_size,  0, OGG_ONE_TIME);
+					Speed = 63;
+					Play(HARD);
 				break;
 
 				default:
@@ -139,5 +211,57 @@ void DifficultySelect() {
 		} else if (pressed & WPAD_BUTTON_HOME) {
 			exit(0);
 		}
+	}
+}
+
+void GameOver() {
+	POSCursor(30, 10);
+	printf("Game Over!");
+	POSCursor(27, 12);
+	printf("Your Score : %d", Score);
+	POSCursor(14, 14);
+	printf("Press HOME to exit or A to restart the game");
+	while (true) {
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if (pressed & WPAD_BUTTON_HOME) {
+			exit(0);
+		} else if (pressed & WPAD_BUTTON_A) {
+			printf("\x1b[2J");
+			DifficultySelect();
+			RenderBorders(true, true);
+			return;
+		}
+	}
+
+}
+
+void Loose() {
+	GenBall = true;
+	Start = false;
+	for (size_t i = 1; i < 599; i++) {
+		SnakePOSbuffer[i][0] = 0;
+		SnakePOSbuffer[i][1] = 0;
+	}
+	SnakeX = (COLS/2) + 4;
+	SnakeY = ROWS/2;
+	VSnakeX = 0;
+	VSnakeY = 0;
+	SnakeLength = 2;
+	
+
+	if (Lives > 0) {
+		Play(LOST);
+		sleep(2000);
+		printf("\x1b[2J");
+		RenderBorders(false, true);
+		Lives--;
+	} else {
+		Play(DIED);
+		sleep(4000);
+		printf("\x1b[2J");
+		GameOver();
+		Lives = 3;
+		Score = 0;
 	}
 }
