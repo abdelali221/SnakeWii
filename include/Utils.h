@@ -4,15 +4,17 @@
 #include "Variables.h"
 #include "WiiVT.h"
 
-void SystemInit();
+void VideoInit();
 void CheckController();
 void sleep(u32 delay);
 void PrintGameStats();
 void RenderBorders(bool DELAY, bool PLAYSOUND);
 void GenerateBall();
+void MainMenu();
 void DifficultySelect();
 void Pause();
 void GameOver();
-void Loose();
+bool Loose();
+void CreditsMenu();
 
 #endif

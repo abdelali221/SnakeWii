@@ -1,61 +1,86 @@
 #include "Audio.h"
 
 // Audio is HELL
-// I Will fix it when I'll find a solution
+// I will fix it when I'll find a solution
 
 void Play(uint8_t ID) {
     /*
-    MP3Player_Stop();
+    int error = StatusOgg();
+    POSCursor(40, 20);
+    printf("%d", error);
+    sleep(3000);
+    
     switch (ID)
     {
+       
         case 0:
-            MP3Player_PlayBuffer(sample_mp3, sample_mp3_size, NULL);
+            error = PlayOgg(sample_ogg, sample_ogg_size, 0, OGG_ONE_TIME);
         break;
+
         
         case 1:
-            MP3Player_PlayBuffer(died_mp3, died_mp3_size, NULL);
+            error = PlayOgg(died_ogg, died_ogg_size, 0, OGG_ONE_TIME);
         break;
         
         case 2:
-            MP3Player_PlayBuffer(increase_mp3, increase_mp3_size, NULL);
+            error = PlayOgg(increase_ogg, increase_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 3:
-            MP3Player_PlayBuffer(lost_mp3, lost_mp3_size, NULL);
+            error = PlayOgg(lost_ogg, lost_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 4:
-            MP3Player_PlayBuffer(start_mp3, start_mp3_size, NULL);
+            error = PlayOgg(start_ogg, start_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 6:
-            MP3Player_PlayBuffer(easy_mp3, easy_mp3_size, NULL);
+            error = PlayOgg(easy_ogg, easy_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 7:
-            MP3Player_PlayBuffer(medium_mp3, medium_mp3_size, NULL);
+            error = PlayOgg(medium_ogg, medium_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 8:
-            MP3Player_PlayBuffer(hard_mp3, hard_mp3_size, NULL);
+            error = PlayOgg(hard_ogg, hard_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 9:
-            MP3Player_PlayBuffer(pause_mp3, pause_mp3_size, NULL);
+            error = PlayOgg(pause_ogg, pause_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 10:
-            MP3Player_PlayBuffer(resume_mp3, resume_mp3_size, NULL);
+            error = PlayOgg(resume_ogg, resume_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         case 11:
-            MP3Player_PlayBuffer(select_mp3, lost_mp3_size, NULL);
+            error = PlayOgg(select_ogg, lost_ogg_size, 0, OGG_ONE_TIME);
         break;
 
         default:
         break;
     }
-    while (MP3Player_IsPlaying())
-        ;
+
+    if (error < 0) {
+        POSCursor(40, 20);
+        switch (error)
+        {
+        case -1:
+            printf("#");
+            break;
+
+        case -2:
+            printf("*");
+            break;
+        
+        case -3:
+            printf("$");
+            break;
+        
+        default:
+            break;
+        }
+    }
     */
 }

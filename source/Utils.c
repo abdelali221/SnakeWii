@@ -1,19 +1,13 @@
 #include "Utils.h"
 #include "Audio.h"
 
-uint8_t Selection;
+uint8_t MenuSelect = 0;
 
-
-void SystemInit() {
+void VideoInit() {
 	static void *xfb = NULL;
 	static GXRModeObj *Vmode = NULL;
 
 	VIDEO_Init();
-
-	WPAD_Init();
-
-	ASND_Init();
-	MP3Player_Init();
 
 	Vmode = VIDEO_GetPreferredMode(NULL);
 
@@ -33,15 +27,13 @@ void SystemInit() {
 
 	VIDEO_WaitVSync();
 	if(Vmode->viTVMode&VI_NON_INTERLACE) VIDEO_WaitVSync();
-	
+
 }
 
 void CheckController() {
 	WPAD_ScanPads();
 	u32 pressed = WPAD_ButtonsDown(0);
-	if (pressed & WPAD_BUTTON_HOME) {
-		exit(0);
-	} else if ((pressed & WPAD_BUTTON_UP) && (VSnakeX != 0 || !Start) && !PressedButton) {
+	if ((pressed & WPAD_BUTTON_UP) && (VSnakeX != 0 || !Start) && !PressedButton) {
 		PressedButton = true;
 		if (!Start) {
 			Start = true;
@@ -70,7 +62,8 @@ void CheckController() {
 		VSnakeX = 1;
 		VSnakeY = 0;
 	} else if (pressed & WPAD_BUTTON_PLUS) {
-		doPause = true; 
+		doPause = true;
+		Pause();
 	}
 }
 
@@ -124,38 +117,119 @@ void GenerateBall() {
 }
 
 void Pause() {
-	printf("\x1b[2J");
-	POSCursor(30, 10);
-	printf("Paused!");
-	POSCursor(25, 12);
-	printf("Press + to resume...");
-	Play(PAUSE);
-	while (1) {
-		WPAD_ScanPads();
-		u32 pressed = WPAD_ButtonsDown(0);
-		if (pressed & WPAD_BUTTON_PLUS) {
-			Play(RESUME);
-			printf("\x1b[2J");
-			RenderBorders(false, false);
-			for (size_t i = 1; i < SnakeLength; i++) {
-				POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
-				printf("#");
+	while (1)
+	{	
+		printf("\x1b[2J");
+		POSCursor(34, 10);
+		printf("Paused!");
+		POSCursor(28, 12);
+		printf("Press + to resume...");
+		Play(PAUSE);
+		while (1) {
+			WPAD_ScanPads();
+			u32 pressed = WPAD_ButtonsDown(0);
+			if (pressed & WPAD_BUTTON_PLUS) {
+				Play(RESUME);
+				printf("\x1b[2J");
+				RenderBorders(false, false);
+				for (size_t i = 1; i < SnakeLength; i++) {
+					POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
+					printf("#");
+				}
+				if (!BallEaten && !GenBall) {
+					POSCursor(BallX, BallY);
+					printf("O");
+				}			
+				doPause = false;
+				return;
+			} else if (pressed & WPAD_BUTTON_HOME) {
+				break;
 			}
-			if (!BallEaten && !GenBall) {
-				POSCursor(BallX, BallY);
-				printf("O");
-			}			
-			PrintGameStats();
-			doPause = false;
-			return;
-		} else if (pressed & WPAD_BUTTON_HOME) {
-			exit(0);
+		}
+		MainMenu();
+	}
+}
+
+void MainMenu() {
+	while (1)
+	{	printf("\x1b[2J");
+		POSCursor(8, 2);
+		printf(" #####  #     #    #    #    # ####### #     # ### ###");
+		POSCursor(8, 3);
+		printf("#     # ##    #   # #   #   #  #       #  #  #  #   #");
+		POSCursor(8, 4);
+		printf("#       # #   #  #   #  #  #   #       #  #  #  #   #");
+		POSCursor(8, 5);
+		printf(" #####  #  #  # #     # ###    #####   #  #  #  #   #");
+		POSCursor(8, 6);
+		printf("      # #   # # ####### #  #   #       #  #  #  #   #"); 
+		POSCursor(8, 7);
+		printf("#     # #    ## #     # #   #  #       #  #  #  #   #");
+		POSCursor(8, 8);
+		printf(" #####  #     # #     # #    # #######  ## ##  ### ###   Ver %s", VER);
+		POSCursor(28, 12);
+		if (doPause) {
+			printf("Resume Game");
+		} else {
+			printf("New Game");
+		}
+		POSCursor(28, 14);
+		printf("Game Speed");
+		POSCursor(28, 16);
+		printf("Credits");
+		POSCursor(28, 18);
+		printf("Exit");
+		POSCursor(25, 12 + MenuSelect);
+		printf(">");
+		while(1) {
+			WPAD_ScanPads();
+			u32 pressed = WPAD_ButtonsDown(0);
+
+			if ((pressed & WPAD_BUTTON_DOWN) && MenuSelect < 6) {
+				POSCursor(25, 12 + MenuSelect);
+				printf(" ");
+				MenuSelect = MenuSelect + 2;
+				POSCursor(25, 12 + MenuSelect);
+				printf(">");
+				Play(SELECT);
+			} else if ((pressed & WPAD_BUTTON_UP) && MenuSelect > 0) {
+				POSCursor(25, 12 + MenuSelect);
+				printf(" ");
+				MenuSelect = MenuSelect - 2;
+				POSCursor(25, 12 + MenuSelect);
+				printf(">");
+				Play(SELECT);
+			} else if (pressed & WPAD_BUTTON_A) {
+				printf("\x1b[2J");
+				switch (MenuSelect)
+				{
+					case 0:
+						return;
+					break;
+					
+					case 2:
+						DifficultySelect();
+					break;
+
+					case 4:
+						CreditsMenu();
+					break;
+
+					case 6:
+						exit(0);
+					break;
+
+					default:
+					break;
+				}
+				break;
+			}
 		}
 	}
 }
 
 void DifficultySelect() {
-	Selection = 10;
+	uint8_t Selection = 10;
 	POSCursor(4, 8);
 	printf("Choose the difficulty :");
 	POSCursor(10, 10);
@@ -215,35 +289,30 @@ void DifficultySelect() {
 }
 
 void GameOver() {
-	POSCursor(30, 10);
+	POSCursor(34, 10);
 	printf("Game Over!");
-	POSCursor(27, 12);
+	POSCursor(32, 12);
 	printf("Your Score : %d", Score);
-	POSCursor(14, 14);
-	printf("Press HOME to exit or A to restart the game");
+	POSCursor(24, 14);
+	printf("Press A to go back to the menu.");
 	while (true) {
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);
-		if (pressed & WPAD_BUTTON_HOME) {
-			exit(0);
-		} else if (pressed & WPAD_BUTTON_A) {
-			printf("\x1b[2J");
-			DifficultySelect();
-			RenderBorders(true, true);
+		if (pressed & WPAD_BUTTON_A) {
 			return;
 		}
 	}
 
 }
 
-void Loose() {
+bool Loose() {
 	GenBall = true;
 	Start = false;
 	for (size_t i = 1; i < 599; i++) {
 		SnakePOSbuffer[i][0] = 0;
 		SnakePOSbuffer[i][1] = 0;
 	}
-	SnakeX = (COLS/2) + 4;
+	SnakeX = (COLS/2) + 4 + VER_OFFSET;
 	SnakeY = ROWS/2;
 	VSnakeX = 0;
 	VSnakeY = 0;
@@ -256,6 +325,7 @@ void Loose() {
 		printf("\x1b[2J");
 		RenderBorders(false, true);
 		Lives--;
+		return false;
 	} else {
 		Play(DIED);
 		sleep(4000);
@@ -263,5 +333,28 @@ void Loose() {
 		GameOver();
 		Lives = 3;
 		Score = 0;
+		return true;
+	}
+}
+
+void CreditsMenu() {
+	printf("\x1b[2J");
+	POSCursor(4, 2);
+	printf("SnakeWii, Developed by Abdelali221.");
+	POSCursor(5, 6);
+	printf("This game is entirely open source, if you want to port it");
+	POSCursor(2, 8);
+	printf("just make sure to give credits to the original coder (Abdelali221).");
+	POSCursor(8, 22);
+	printf("Github : https://github.com/abdelali221/SnakeWii/");
+	POSCursor(8, 24);
+	printf("Press B to go back...");
+	while (true) {
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if (pressed & WPAD_BUTTON_B) {
+			printf("\x1b[2J");
+			return;
+		}
 	}
 }
