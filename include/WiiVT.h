@@ -3,5 +3,6 @@
 #include "WiiLibs.h"
 
 void POSCursor(uint8_t X, uint8_t Y);
+void ClearScreen();
 
 #endif

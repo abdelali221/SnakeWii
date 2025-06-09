@@ -119,7 +119,7 @@ void GenerateBall() {
 void Pause() {
 	while (1)
 	{	
-		printf("\x1b[2J");
+		ClearScreen();
 		POSCursor(34, 10);
 		printf("Paused!");
 		POSCursor(28, 12);
@@ -130,7 +130,7 @@ void Pause() {
 			u32 pressed = WPAD_ButtonsDown(0);
 			if (pressed & WPAD_BUTTON_PLUS) {
 				Play(RESUME);
-				printf("\x1b[2J");
+				ClearScreen();
 				RenderBorders(false, false);
 				for (size_t i = 1; i < SnakeLength; i++) {
 					POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
@@ -152,21 +152,25 @@ void Pause() {
 
 void MainMenu() {
 	while (1)
-	{	printf("\x1b[2J");
-		POSCursor(8, 2);
-		printf(" #####  #     #    #    #    # ####### #     # ### ###");
-		POSCursor(8, 3);
-		printf("#     # ##    #   # #   #   #  #       #  #  #  #   #");
-		POSCursor(8, 4);
-		printf("#       # #   #  #   #  #  #   #       #  #  #  #   #");
-		POSCursor(8, 5);
-		printf(" #####  #  #  # #     # ###    #####   #  #  #  #   #");
-		POSCursor(8, 6);
-		printf("      # #   # # ####### #  #   #       #  #  #  #   #"); 
-		POSCursor(8, 7);
-		printf("#     # #    ## #     # #   #  #       #  #  #  #   #");
-		POSCursor(8, 8);
-		printf(" #####  #     # #     # #    # #######  ## ##  ### ###   Ver %s", VER);
+	{	ClearScreen();
+		POSCursor(3, 2);
+		printf("  /$$$$$$  /$$   /$$  /$$$$$$  /$$   /$$ /$$$$$$$$ /$$      /$$ /$$ /$$");
+		POSCursor(3, 3);
+		printf(" /$$__  $$| $$$ | $$ /$$__  $$| $$  /$$/| $$_____/| $$  /$ | $$|__/|__/");
+		POSCursor(3, 4);
+		printf("| $$   __/| $$$$| $$| $$    $$| $$ /$$/ | $$      | $$ /$$$| $$ /$$ /$$");
+		POSCursor(3, 5);
+		printf("|  $$$$$$ | $$ $$ $$| $$$$$$$$| $$$$$/  | $$$$$   | $$/$$ $$ $$| $$| $$"); 
+		POSCursor(3, 6);
+		printf("  ____  $$| $$  $$$$| $$__  $$| $$  $$  | $$__/   | $$$$_  $$$$| $$| $$");
+		POSCursor(3, 7);
+		printf(" /$$    $$| $$   $$$| $$  | $$| $$   $$ | $$      | $$$/    $$$| $$| $$ ");
+		POSCursor(3, 8);
+		printf("|  $$$$$$/| $$    $$| $$  | $$| $$    $$| $$$$$$$$| $$/      $$| $$| $$");
+		POSCursor(3, 9);
+		printf("  ______/ |__/   __/|__/  |__/|__/   __/|________/|__/      __/|__/|__/ ");
+		POSCursor(68, 10);
+		printf("Ver %s", VER);
 		POSCursor(28, 12);
 		if (doPause) {
 			printf("Resume Game");
@@ -200,10 +204,11 @@ void MainMenu() {
 				printf(">");
 				Play(SELECT);
 			} else if (pressed & WPAD_BUTTON_A) {
-				printf("\x1b[2J");
+				ClearScreen();
 				switch (MenuSelect)
 				{
 					case 0:
+						ClearScreen();
 						return;
 					break;
 					
@@ -259,7 +264,7 @@ void DifficultySelect() {
 			printf(">");
 			Play(SELECT);
 		} else if (pressed & WPAD_BUTTON_A) {
-			printf("\x1b[2J");
+			ClearScreen();
 			 
 			switch (Selection)
 			{
@@ -274,7 +279,7 @@ void DifficultySelect() {
 				break;
 
 				case 14:
-					Speed = 63;
+					Speed = 80;
 					Play(HARD);
 				break;
 
@@ -322,14 +327,14 @@ bool Loose() {
 	if (Lives > 0) {
 		Play(LOST);
 		sleep(2000);
-		printf("\x1b[2J");
+		ClearScreen();
 		RenderBorders(false, true);
 		Lives--;
 		return false;
 	} else {
 		Play(DIED);
 		sleep(4000);
-		printf("\x1b[2J");
+		ClearScreen();
 		GameOver();
 		Lives = 3;
 		Score = 0;
@@ -337,8 +342,61 @@ bool Loose() {
 	}
 }
 
+void donut() {
+    float A = 0, B = 0;
+    float i, j;
+    int k;
+    float z[1760];
+    char b[1760];
+    ClearScreen();
+	POSCursor(8, 24);
+	printf("Credits : ANdy Sloane (AIKON), Original donut code author.");
+	POSCursor(16, 26);
+	printf("Akhilesh Thile, donut.c author.");
+    for(;;) {
+		memset(b,32,1760);
+        memset(z,0,7040);
+        for(j=0; j < 6.28; j += 0.07) {
+            for(i=0; i < 6.28; i += 0.02) {
+                float c = sin(i);
+                float d = cos(j);
+                float e = sin(A);
+                float f = sin(j);
+                float g = cos(A);
+                float h = d + 2;
+                float D = 1 / (c * h * e + f * g + 5);
+                float l = cos(i);
+                float m = cos(B);
+                float n = sin(B);
+                float t = c * h * g - f * e;
+                int x = 40 + 30 * D * (l * h * m - t * n);
+                int y= 12 + 15 * D * (l * h * n + t * m);
+                int o = x + 80 * y;
+                int N = 8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n);
+                if(22 > y && y > 0 && x > 0 && 80 > x && D > z[o]) {
+                    z[o] = D;
+                    b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
+                }
+            }
+        }
+        printf("\x1b[H");
+        for(k = 0; k < 1761; k++) {
+            putchar(k % 80 ? b[k] : 10);
+            A += 0.00004;
+            B += 0.00002;
+        }
+        sleep(30);
+		WPAD_ScanPads();
+		u32 pressed = WPAD_ButtonsDown(0);
+		if (pressed & WPAD_BUTTON_B) {
+			ClearScreen();
+			break;
+		}
+    }
+}
+
 void CreditsMenu() {
-	printf("\x1b[2J");
+	ClearScreen();
 	POSCursor(4, 2);
 	printf("SnakeWii, Developed by Abdelali221.");
 	POSCursor(5, 6);
@@ -353,8 +411,63 @@ void CreditsMenu() {
 		WPAD_ScanPads();
 		u32 pressed = WPAD_ButtonsDown(0);
 		if (pressed & WPAD_BUTTON_B) {
-			printf("\x1b[2J");
+			ClearScreen();
 			return;
+		} else if (pressed & WPAD_BUTTON_UP) {
+			while (1)
+			{
+				WPAD_ScanPads();
+				u32 pressed = WPAD_ButtonsDown(0);
+				if (pressed & WPAD_BUTTON_UP) {
+					while (1)
+					{
+						WPAD_ScanPads();
+						u32 pressed = WPAD_ButtonsDown(0);
+						if (pressed & WPAD_BUTTON_DOWN) {
+							while (1)
+							{
+								WPAD_ScanPads();
+								u32 pressed = WPAD_ButtonsDown(0);
+								if (pressed & WPAD_BUTTON_DOWN) {
+									while (1)
+									{
+										WPAD_ScanPads();
+										u32 pressed = WPAD_ButtonsDown(0);
+										if (pressed & WPAD_BUTTON_LEFT) {
+											while (1)
+											{
+												WPAD_ScanPads();
+												u32 pressed = WPAD_ButtonsDown(0);
+												if (pressed & WPAD_BUTTON_RIGHT) {
+													while (1)
+													{
+														WPAD_ScanPads();
+														u32 pressed = WPAD_ButtonsDown(0);
+														if (pressed & WPAD_BUTTON_LEFT) {
+															while (1)
+															{
+																WPAD_ScanPads();
+																u32 pressed = WPAD_ButtonsDown(0);
+																if (pressed & WPAD_BUTTON_RIGHT) {
+																	while (1)
+																	{
+																		donut();
+																		return;
+																	}
+																}
+															}
+														}
+													}											
+												}
+											}											
+										}
+									}											
+								}
+							}							
+						}
+					}					
+				}
+			}			
 		}
 	}
 }

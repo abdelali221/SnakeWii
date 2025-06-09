@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
 	srand(time(NULL));
 	WPAD_Init();
 	VideoInit();
+	ClearScreen();
 	MainMenu();
-	printf("\x1b[2J");
 	RenderBorders(true, true);
 
 	while (1) {
