@@ -1,4 +1,10 @@
 #include "SnakeUtils.h"
+#include "WiiVT.h"
+#include "WiiLibs.h"
+#include "Variables.h"
+#include "Audio.h"
+#include "Utils.h"
+#include "UI.h"
 
 void RenderSnake() {
 	POSCursor(SnakePOSbuffer[SnakeLength][0], SnakePOSbuffer[SnakeLength][1]);
@@ -15,7 +21,6 @@ void RenderSnake() {
 }
 
 void ManageSnakePos() {
-	CheckController();
 	if (SnakeX < HOR_OFFSET + 1 || SnakeX > COLS - 1 || SnakeY < VER_OFFSET + 1 || SnakeY > ROWS - 1) {
 		ClearScreen();
 		if (Loose())

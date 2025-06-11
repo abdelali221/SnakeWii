@@ -6,6 +6,8 @@ bool Start = false;
 bool PressedButton = false;
 bool BallEaten = false;
 bool doPause = false;
+bool ingame = false;
+bool WPADType = false;
 
 const uint8_t ROWS = 20 + VER_OFFSET;
 const uint8_t COLS = 50 + HOR_OFFSET;

@@ -3,7 +3,7 @@
 #include "WiiLibs.h"
 #define HOR_OFFSET 12
 #define VER_OFFSET 1
-#define VER "1.4"
+#define VER "1.7"
 
 extern bool Resume;
 extern bool GenBall;
@@ -11,6 +11,8 @@ extern bool Start;
 extern bool PressedButton;
 extern bool BallEaten;
 extern bool doPause;
+extern bool ingame;
+extern bool WPADType;
 extern uint16_t Speed;
 
 extern const uint8_t ROWS;

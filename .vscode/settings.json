@@ -4,6 +4,8 @@
         "math.h": "c",
         "sample_mp3.h": "c",
         "increase_mp3.h": "c",
-        "wiilibs.h": "c"
+        "wiilibs.h": "c",
+        "wiivt.h": "c",
+        "utils.h": "c"
     }
 }
