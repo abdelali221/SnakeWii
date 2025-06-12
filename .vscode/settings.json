@@ -6,6 +6,7 @@
         "increase_mp3.h": "c",
         "wiilibs.h": "c",
         "wiivt.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "audio.h": "c"
     }
 }

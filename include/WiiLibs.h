@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <gccore.h>
 #include <wiiuse/wpad.h>
+#include <asndlib.h>
 #include <time.h>
 #include <math.h>
 #include <string.h>

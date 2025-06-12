@@ -1,23 +1,14 @@
 #include "Audio.h"
-#include "Utils.h"
-
-// Audio is HELL
-// I will fix it when I'll find a solution
+#include "WiiVT.h"
+#include "oggplayer.h"
 
 void Play(uint8_t ID) {
-    /*
-    int error = StatusOgg();
-    POSCursor(40, 20);
-    printf("%d", error);
-    sleep(3000);
-    
+    int8_t error = 0;
     switch (ID)
-    {
-       
+    {       
         case 0:
             error = PlayOgg(sample_ogg, sample_ogg_size, 0, OGG_ONE_TIME);
         break;
-
         
         case 1:
             error = PlayOgg(died_ogg, died_ogg_size, 0, OGG_ONE_TIME);
@@ -58,7 +49,7 @@ void Play(uint8_t ID) {
         case 11:
             error = PlayOgg(select_ogg, lost_ogg_size, 0, OGG_ONE_TIME);
         break;
-
+        
         default:
         break;
     }
@@ -83,5 +74,4 @@ void Play(uint8_t ID) {
             break;
         }
     }
-    */
 }

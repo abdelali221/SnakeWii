@@ -12,7 +12,7 @@ void VideoInit() {
 	static GXRModeObj *Vmode = NULL;
 
 	VIDEO_Init();
-
+	ASND_Init();
 	Vmode = VIDEO_GetPreferredMode(NULL);
 
 	xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(Vmode));
@@ -31,7 +31,6 @@ void VideoInit() {
 
 	VIDEO_WaitVSync();
 	if(Vmode->viTVMode&VI_NON_INTERLACE) VIDEO_WaitVSync();
-
 }
 
 void CheckController() {
