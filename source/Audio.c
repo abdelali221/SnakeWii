@@ -58,19 +58,19 @@ void Play(uint8_t ID) {
         POSCursor(40, 20);
         switch (error)
         {
-        case -1:
-            printf("#");
+            case -1:
+                printf("#");
             break;
 
-        case -2:
-            printf("*");
+            case -2:
+                printf("*");
             break;
-        
-        case -3:
-            printf("$");
+            
+            case -3:
+                printf("$");
             break;
-        
-        default:
+            
+            default:
             break;
         }
     }

@@ -6,6 +6,7 @@
 int main(int argc, char **argv) {
 	srand(time(NULL));
 	WPAD_Init();
+	ASND_Init();
 	VideoInit();
 	ClearScreen();
 	

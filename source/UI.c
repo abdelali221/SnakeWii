@@ -270,17 +270,17 @@ void donut() {
                 float n = sin(B);
                 float t = c * h * g - f * e;
                 int x = 40 + 30 * D * (l * h * m - t * n);
-                int y= 12 + 15 * D * (l * h * n + t * m);
+                int y= 10 + 15 * D * (l * h * n + t * m);
                 int o = x + 80 * y;
                 int N = 8 * ((f * e - c * d * g) * m - c * d * e - f * g - l * d * n);
-                if(22 > y && y > 0 && x > 0 && 80 > x && D > z[o]) {
+                if(20 > y && y > 0 && x > 0 && 60 > x && D > z[o]) {
                     z[o] = D;
                     b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
                 }
             }
         }
         printf("\x1b[H");
-        for(k = 0; k < 1761; k++) {
+        for(k = 0; k < 1500; k++) {
             putchar(k % 80 ? b[k] : 10);
             A += 0.00004;
             B += 0.00002;
@@ -302,63 +302,47 @@ void CreditsMenu() {
 	printf("This game is entirely open source, if you want to port it");
 	POSCursor(2, 8);
 	printf("just make sure to give credits to the original coder (Abdelali221).");
+	POSCursor(4, 12);
+	printf("Special thanks to :");
+	POSCursor(4, 14);
+	printf("- Posifurg : Sound files.");
 	POSCursor(8, 22);
 	printf("Github : https://github.com/abdelali221/SnakeWii/");
 	POSCursor(8, 24);
-	printf("Press B to go back...");
+	printf("Press B (1) to go back...");
 	while (true) {
 		int pressed = CheckWPAD();
 		if (pressed == b_B || pressed == ONE) {
 			ClearScreen();
 			return;
 		} else if (pressed == UP) {
-			while (1)
+			uint8_t secretcode[9];
+			for (size_t i = 0; i < 9; i++)
 			{
-				int pressed = CheckWPAD();
-				if (pressed == UP) {
-					while (1)
-					{
-						int pressed = CheckWPAD();
-						if (pressed == DOWN) {
-							while (1)
-							{
-								int pressed = CheckWPAD();
-								if (pressed == DOWN) {
-									while (1)
-									{
-										int pressed = CheckWPAD();
-										if (pressed == LEFT) {
-											while (1)
-											{
-												int pressed = CheckWPAD();
-												if (pressed == RIGHT) {
-													while (1)
-													{
-														int pressed = CheckWPAD();
-														if (pressed == LEFT) {
-															while (1)
-															{
-																int pressed = CheckWPAD();
-																if (pressed == RIGHT) {
-																	while (1)
-																	{
-																		donut();
-																		return;
-																	}
-																}
-															}
-														}
-													}											
-												}
-											}											
-										}
-									}											
-								}
-							}							
+				while (1)
+				{
+					int pressed = CheckWPAD();
+					if (pressed != 0) {
+						if (pressed < 7) {
+							if (i > 6) {
+								secretcode[i] = pressed;
+							} else if (pressed < 5 && i < 7) {
+								secretcode[i] = pressed;
+							}
+							break;
+						} else {
+							return;
 						}
-					}					
+					}
+				}				
+			}
+			for (size_t i = 0; i < 9; i++) {
+				if (secretcode[i] != konamicode[i]) {
+					return;			
 				}
-			}			
+			}
+			donut();
+			return;
 		}
 	}
 }

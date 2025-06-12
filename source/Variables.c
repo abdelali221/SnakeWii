@@ -28,3 +28,4 @@ uint8_t counter = 0;
 uint8_t Selection = 0;
 
 uint8_t SnakePOSbuffer[1920][2];
+uint8_t konamicode[9] = {1, 2, 2, 3, 4, 3, 4, 5, 6};
