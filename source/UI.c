@@ -253,7 +253,8 @@ void donut() {
 	printf("Credits : Andy Sloane (AIKON), Original donut code author.");
 	POSCursor(17, 26);
 	printf("Akhilesh Thile, donut.c author.");
-     memset(b,32,1760);
+	for(;;) {
+    	memset(b,32,1760);
         memset(z,0,7040);
         for(j=0; j < 6.28; j += 0.07) {
             for(i=0; i < 6.28; i += 0.02) {
