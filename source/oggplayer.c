@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2008 Francisco Muñoz 'Hermes' <www.elotrolado.net>
+ Copyright (c) 2008 Francisco Muï¿½oz 'Hermes' <www.elotrolado.net>
  All rights reserved.
 
  Proper (standard) vorbis usage by Tantric, 2009
@@ -241,8 +241,8 @@ static ov_callbacks callbacks = {
 
 /* OGG control */
 
-#define READ_SAMPLES 4096 // samples that it must read before to send
-#define MAX_PCMOUT 4096 // minimum size to read ogg samples
+#define READ_SAMPLES 8192 // samples that it must read before to send
+#define MAX_PCMOUT 8192 // minimum size to read ogg samples
 typedef struct
 {
 	OggVorbis_File vf;
@@ -268,7 +268,7 @@ static private_data_ogg private_ogg;
 
 // OGG thread control
 
-#define STACKSIZE		8192
+#define STACKSIZE		32768
 
 static u8 oggplayer_stack[STACKSIZE];
 static lwpq_t oggplayer_queue = LWP_TQUEUE_NULL;

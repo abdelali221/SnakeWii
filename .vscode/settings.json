@@ -7,6 +7,7 @@
         "wiilibs.h": "c",
         "wiivt.h": "c",
         "utils.h": "c",
-        "audio.h": "c"
+        "audio.h": "c",
+        "oggplayer.h": "c"
     }
 }

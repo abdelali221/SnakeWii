@@ -105,7 +105,6 @@ void MainMenu() {
 				switch (MenuSelect)
 				{
 					case 0:
-						ClearScreen();
 						RunGame();
 					break;
 
@@ -135,7 +134,7 @@ void MainMenu() {
 }
 
 void DifficultySelect() {
-	uint8_t Selection = 10;
+	uint8_t Selection = 0;
 	POSCursor(4, 8);
 	printf("Choose the difficulty :");
 	POSCursor(10, 10);
@@ -144,23 +143,23 @@ void DifficultySelect() {
 	printf("Medium");
 	POSCursor(10, 14);
 	printf("Hard");
-	POSCursor(9, Selection);
+	POSCursor(8, 10 + Selection);
 	printf(">");
 	while(1) {
 		int pressed = CheckWPAD();
 
-		if (pressed == DOWN && Selection < 14) {
-			POSCursor(9, Selection);
+		if (pressed == DOWN && Selection < 4) {
+			POSCursor(8, 10 + Selection);
 			printf(" ");
 			Selection = Selection + 2;
-			POSCursor(9, Selection);
+			POSCursor(8, 10 + Selection);
 			printf(">");
 			Play(SELECT);
-		} else if (pressed == UP && Selection > 10) {
-			POSCursor(9, Selection);
+		} else if (pressed == UP && Selection > 0) {
+			POSCursor(8, 10 + Selection);
 			printf(" ");
 			Selection = Selection - 2;
-			POSCursor(9, Selection);
+			POSCursor(8, 10 + Selection);
 			printf(">");
 			Play(SELECT);
 		} else if (pressed == b_A || pressed == TWO) {
@@ -168,17 +167,17 @@ void DifficultySelect() {
 			 
 			switch (Selection)
 			{
-				case 10:
+				case 0:
 					Speed = 250;
 					Play(EASY);
 				break;
 				
-				case 12:
+				case 2:
 					Speed = 125;
 					Play(MEDIUM);
 				break;
 
-				case 14:
+				case 4:
 					Speed = 80;
 					Play(HARD);
 				break;
@@ -295,7 +294,6 @@ void donut() {
 }
 
 void CreditsMenu() {
-	ClearScreen();
 	POSCursor(4, 2);
 	printf("SnakeWii, Developed by Abdelali221.");
 	POSCursor(5, 6);
@@ -348,7 +346,6 @@ void CreditsMenu() {
 }
 
 void Settings() {
-	ClearScreen();
 	uint8_t Selection = 0;
 	POSCursor(20, 5);
 	printf("Settings :");

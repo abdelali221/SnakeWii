@@ -23,6 +23,8 @@ void VideoInit() {
 
 	VIDEO_SetNextFramebuffer(xfb);
 
+	VIDEO_ClearFrameBuffer(Vmode, xfb, COLOR_BLACK);
+
 	VIDEO_SetBlack(false);
 
 	VIDEO_Flush();
