@@ -8,6 +8,7 @@ void sleep(u32 delay);
 void PrintGameStats();
 void RenderBorders(bool DELAY, bool PLAYSOUND);
 void GenerateBall();
+bool Loose();
 void RunGame();
 
 #endif

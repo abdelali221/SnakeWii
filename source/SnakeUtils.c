@@ -23,15 +23,19 @@ void RenderSnake() {
 void ManageSnakePos() {
 	if (SnakeX < HOR_OFFSET + 1 || SnakeX > COLS - 1 || SnakeY < VER_OFFSET + 1 || SnakeY > ROWS - 1) {
 		ClearScreen();
-		if (Loose())
-			MainMenu();
+		if (Loose()) {
+			ingame = false;
+			return;
+		}
 	}
 	if (SnakeLength > 4) {
 		for (size_t i = 4; i < SnakeLength + 1; i++) {
 			if (SnakeX == SnakePOSbuffer[i][0] && SnakeY == SnakePOSbuffer[i][1]) {
 				ClearScreen();
-				if (Loose())
-					MainMenu();
+				if (Loose()) {
+					ingame = false;
+					return;
+				}
 			}
 		}
 	}

@@ -4,5 +4,7 @@
 #include "AudioFiles.h"
 
 void Play(uint8_t ID);
+void StopPlaying();
+void Volume(int volume);
 
 #endif

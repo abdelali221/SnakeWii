@@ -5,45 +5,47 @@
 #include "Audio.h"
 #include "WiiVT.h"
 #include "Input.h"
+#include "SaveFile.h"
 
 uint8_t MenuSelect = 0;
+const uint8_t konamicode[9] = {1, 2, 2, 3, 4, 3, 4, 5, 6};
 
-void Pause() {
-	while (1)
-	{	
-		ClearScreen();
-		POSCursor(34, 10);
-		printf("Paused!");
-		POSCursor(27, 12);
-		printf("Press + to resume or");
-		POSCursor(18, 14);
-		printf(" press HOME to go back to the Main Menu");
-		Play(PAUSE);
-		while (1) {
-			int pressed = CheckWPAD();
+int Pause() {
+	ClearScreen();
+	POSCursor(36, 10);
+	printf("Paused!");
+	POSCursor(30, 12);
+	printf("+ : Resume");
+	POSCursor(30, 14);
+	printf("- : End the game");
+	POSCursor(30, 16);
+	printf("HOME : Main Menu");
+	Play(PAUSE);
+	while (1) {
+		int pressed = CheckWPAD();
 
-			if (pressed == PLUS) {
-				ingame = true;
-				Play(RESUME);
-				ClearScreen();
-				RenderBorders(false, false);
-				for (size_t i = 1; i < SnakeLength; i++) {
-					POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
-					printf("#");
-				}
-				if (!BallEaten && !GenBall) {
-					POSCursor(BallX, BallY);
-					printf("O");
-				}			
-				doPause = false;
-				return;
-			} else if (pressed == HOME) {
-				ingame = false;
-				break;
+		if (pressed == ONE) {
+			ingame = true;
+			Play(RESUME);
+			ClearScreen();
+			RenderBorders(false, false);
+			for (size_t i = 1; i < SnakeLength; i++) {
+				POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
+				printf("#");
 			}
+			if (!BallEaten && !GenBall) {
+				POSCursor(BallX, BallY);
+				printf("O");
+			}
+			doPause = false;
+			break;
+		} else if (pressed == MINUS) {
+			return -1;
+		} else if (pressed == HOME) {
+			return -2;
 		}
-		MainMenu();
 	}
+	return 0;
 }
 
 void MainMenu() {
@@ -83,6 +85,8 @@ void MainMenu() {
 		printf("Exit");
 		POSCursor(25, 12 + MenuSelect);
 		printf(">");
+		POSCursor(55, 15);
+		printf("High Score : %d", HighScore);
 		while(1) {
 			int pressed = CheckWPAD();
 
@@ -113,7 +117,8 @@ void MainMenu() {
 					break;
 					
 					case 4:
-						DifficultySelect();
+						if (!doPause)
+							DifficultySelect();
 					break;
 
 					case 6:
@@ -186,58 +191,34 @@ void DifficultySelect() {
 				break;
 			}
 			return;
+		} else if (pressed == b_B || pressed == ONE) {
+			ClearScreen();
+			break;
 		}
 	}
 }
 
 void GameOver() {
+	Lives = 3;
+	Score = 0;
+	doPause = false;
 	POSCursor(34, 10);
 	printf("Game Over!");
 	POSCursor(32, 12);
-	printf("Your Score : %d", Score);
-	POSCursor(24, 14);
+	if (Score > HighScore) {
+		printf("New High Score : %d !", Score);
+		HighScore = Score;
+		SaveHighScore();
+	} else {
+		printf("Your Score : %d", Score);
+	}
+	POSCursor(21, 14);
 	printf("Press A (or 2) to go back to the menu.");
 	while (true) {
 		int pressed = CheckWPAD();
 		if (pressed == b_A || pressed == TWO) {
 			return;
 		}
-	}
-
-}
-
-bool Loose() {
-	GenBall = true;
-	Start = false;
-	for (size_t i = 1; i < 599; i++) {
-		SnakePOSbuffer[i][0] = 0;
-		SnakePOSbuffer[i][1] = 0;
-	}
-	SnakeX = (COLS/2) + 4 + VER_OFFSET;
-	SnakeY = ROWS/2;
-	VSnakeX = 0;
-	VSnakeY = 0;
-	SnakeLength = 2;
-	
-
-	if (Lives > 0) {
-		ingame = false;
-		Play(LOST);
-		sleep(2000);
-		ClearScreen();
-		RenderBorders(false, true);
-		Lives--;
-		ingame = true;
-		return false;
-	} else {
-		ingame = false;
-		Play(DIED);
-		sleep(4000);
-		ClearScreen();
-		GameOver();
-		Lives = 3;
-		Score = 0;
-		return true;
 	}
 }
 
@@ -249,10 +230,11 @@ void donut() {
     char b[1760];
     ClearScreen();
 	POSCursor(8, 24);
-	printf("Credits : Andy Sloane (AIKON), Original donut code author.");
+	printf("Credits : Andy Sloane (AIKON), donut.c author.");
 	POSCursor(17, 26);
-	printf("Akhilesh Thile, donut.c author.");
-	for(;;) {
+	printf("Music by Jogeir Liljedahl.");
+	Play(DONUT);
+	while (1) {
     	memset(b,32,1760);
         memset(z,0,7040);
         for(j=0; j < 6.28; j += 0.07) {
@@ -287,6 +269,7 @@ void donut() {
         sleep(30);
 		int pressed = CheckWPAD();
 		if (pressed == b_B || pressed == ONE) {
+			StopPlaying();
 			ClearScreen();
 			break;
 		}
@@ -347,64 +330,83 @@ void CreditsMenu() {
 
 void Settings() {
 	uint8_t Selection = 0;
-	POSCursor(20, 5);
-	printf("Settings :");
-	POSCursor(25, 10);
-	printf("WiiMote : ");
-	if (WPADType) {
-		printf("Vertical  ");
-	} else {
-		printf("Horizontal");
-	}
-	POSCursor(23, 10 + Selection);
-	printf(">");
-	while(1) {
-		int pressed = CheckWPAD();
+	while (1) {
+		POSCursor(20, 5);
+		printf("Settings :");
+		POSCursor(25, 10);
+		printf("WiiMote : ");
+		if (WPADType) {
+			printf("Vertical  ");
+		} else {
+			printf("Horizontal");
+		}
+		POSCursor(25, 12);
+		printf("SFX : ");
+		if (SFX) {
+			printf("ON ");
+		} else {
+			printf("OFF");
+		}
+		POSCursor(23, 10 + Selection);
+		printf(">");
+		while(1) {
+			int pressed = CheckWPAD();
 
-		if (pressed == DOWN && Selection < 0) {
-			POSCursor(23, 10 + Selection);
-			printf(" ");
-			Selection = Selection + 2;
-			POSCursor(23, 10 + Selection);
-			printf(">");
-			Play(SELECT);
-		} else if (pressed == UP && Selection > 0) {
-			POSCursor(23, 10 + Selection);
-			printf(" ");
-			Selection = Selection - 2;
-			POSCursor(23, 10 + Selection);
-			printf(">");
-			Play(SELECT);
-		} else if (pressed == b_A || pressed == TWO) {
-		 
-			switch (Selection)
-			{
-				case 0:
-					POSCursor(35, 10);
-					if (WPADType) {
-						WPADType = false;
-						printf("Horizontal");
-					} else {
-						WPADType = true;
-						printf("Vertical  ");
-					}
-				break;
-				
-				case 2:
-					Speed = 125;
-					Play(MEDIUM);
-				break;
+			if (pressed == DOWN && Selection < 2) {
+				POSCursor(23, 10 + Selection);
+				printf(" ");
+				Selection = Selection + 2;
+				POSCursor(23, 10 + Selection);
+				printf(">");
+				Play(SELECT);
+			} else if (pressed == UP && Selection > 0) {
+				POSCursor(23, 10 + Selection);
+				printf(" ");
+				Selection = Selection - 2;
+				POSCursor(23, 10 + Selection);
+				printf(">");
+				Play(SELECT);
+			} else if (pressed == b_A || pressed == TWO) {
+				switch (Selection)
+				{
+					case 0:
+						if (WPADType) {
+							WPADType = false;
+						} else {
+							WPADType = true;
+						}
+					break;
+					
+					case 2:
+						if (SFX) {
+							SFX = false;
+						} else {
+							SFX = true;
+						}
+					break;
 
-				case 4:
-					Speed = 80;
-					Play(HARD);
+					default:
+					break;
+				}
 				break;
-
-				default:
-				break;
+			} else if (pressed == b_B || pressed == ONE) {
+				SaveSettings();
+				return;
 			}
-		} else if (pressed == b_B || pressed == ONE) {
-			return;
 		}
 	}
+}
+
+void ResetGame() {
+	GenBall = true;
+	Start = false;
+	for (size_t i = 1; i < 599; i++) {
+		SnakePOSbuffer[i][0] = 0;
+		SnakePOSbuffer[i][1] = 0;
+	}
+	SnakeX = (COLS/2) + 4 + VER_OFFSET;
+	SnakeY = ROWS/2;
+	VSnakeX = 0;
+	VSnakeY = 0;
+	SnakeLength = 2;
 }

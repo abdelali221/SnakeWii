@@ -8,6 +8,7 @@ bool BallEaten = false;
 bool doPause = false;
 bool ingame = false;
 bool WPADType = false;
+bool SFX = true;
 
 const uint8_t ROWS = 20 + VER_OFFSET;
 const uint8_t COLS = 50 + HOR_OFFSET;
@@ -26,6 +27,6 @@ uint16_t SnakeLength = 2;
 uint16_t Speed = 500;
 uint8_t counter = 0;
 uint8_t Selection = 0;
+uint8_t HighScore = 10;
 
 uint8_t SnakePOSbuffer[1920][2];
-uint8_t konamicode[9] = {1, 2, 2, 3, 4, 3, 4, 5, 6};

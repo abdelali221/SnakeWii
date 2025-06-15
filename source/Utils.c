@@ -78,12 +78,8 @@ void CheckController() {
 			}
 		break;
 		
-		case PLUS: 
-			if (ingame)
-			{
-				doPause = true;
-				Pause();
-			}
+		case PLUS:
+			doPause = true;
 		break;
 
 		default:
@@ -116,9 +112,8 @@ void sleep(u32 delay) {
 	u32 ticks = delay/20;
 	u32 start = 0;
 	while (start < ticks) {
-		CheckController();
-		if (doPause && ingame) {
-			return;
+		if (ingame) {
+			CheckController();
 		}
 		start++;
 		VIDEO_WaitVSync();
@@ -145,9 +140,31 @@ void GenerateBall() {
 	printf("O");
 }
 
-
+bool Loose() {
+	ResetGame();
+	ClearScreen();
+	if (Lives == 0) {
+		doPause = false;
+		ingame = false;
+		Play(DIED);
+		sleep(4000);
+		GameOver();
+		return true;
+	} else {
+		ingame = false;
+		Play(LOST);
+		sleep(2000);
+		RenderBorders(false, true);
+		Lives--;
+		ingame = true;
+		return false;
+	}
+}
 
 void RunGame() {
+	if (doPause) {
+		Pause();
+	}
 	if (!ingame)
 	{
 		ingame = true;
@@ -156,12 +173,6 @@ void RunGame() {
 	}
 	while (1)
 	{
-		if (doPause)
-			Pause();
-
-		if (!ingame)
-			return;
-
 		PrintGameStats();
 		if (counter < 4*(1000/Speed)) {
 			counter++;
@@ -177,5 +188,17 @@ void RunGame() {
 		ManageSnakePos();
 		RenderSnake();
 		VIDEO_WaitVSync();
+		if (doPause) {
+			int ret = Pause();
+			if (ret == -1) {
+				Lives = 0;
+				Loose();
+			} else if (ret == -2) {
+				ingame = false;
+			}
+		}
+
+		if (!ingame)
+			return;
 	}
 }

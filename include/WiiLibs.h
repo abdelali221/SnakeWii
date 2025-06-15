@@ -9,5 +9,6 @@
 #include <time.h>
 #include <math.h>
 #include <string.h>
+#include <fat.h>
 
 #endif

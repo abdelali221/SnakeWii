@@ -5,10 +5,10 @@
 
 void MainMenu();
 void DifficultySelect();
-void Pause();
+int Pause();
 void GameOver();
-bool Loose();
 void CreditsMenu();
 void Settings();
+void ResetGame();
 
 #endif

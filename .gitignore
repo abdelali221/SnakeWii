@@ -8,3 +8,4 @@ apps/SnakeWii/icon.png
 apps/SnakeWii/meta.xml
 SnakeWii.zip
 /build
+.vscode/c_cpp_properties.json
