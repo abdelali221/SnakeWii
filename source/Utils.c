@@ -141,7 +141,17 @@ void GenerateBall() {
 }
 
 bool Loose() {
-	ResetGame();
+	GenBall = true;
+	Start = false;
+	for (size_t i = 1; i < 599; i++) {
+		SnakePOSbuffer[i][0] = 0;
+		SnakePOSbuffer[i][1] = 0;
+	}
+	SnakeX = (COLS/2) + 4 + VER_OFFSET;
+	SnakeY = ROWS/2;
+	VSnakeX = 0;
+	VSnakeY = 0;
+	SnakeLength = 2;
 	ClearScreen();
 	if (Lives == 0) {
 		doPause = false;
