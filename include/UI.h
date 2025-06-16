@@ -5,7 +5,7 @@
 
 void MainMenu();
 void DifficultySelect();
-int Pause();
+void Pause();
 void GameOver();
 void CreditsMenu();
 void Settings();

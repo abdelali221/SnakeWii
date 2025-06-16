@@ -5,7 +5,6 @@
 #define VER_OFFSET 3
 #define VER "1.8.2"
 
-extern bool Resume;
 extern bool GenBall;
 extern bool Start;
 extern bool PressedButton;
@@ -30,6 +29,6 @@ extern uint16_t SnakeLength;
 extern uint8_t counter;
 extern uint8_t HighScore;
 
-extern uint8_t SnakePOSbuffer[1920][2];
+extern uint8_t SnakePOSbuffer[1000][2];
 
 #endif

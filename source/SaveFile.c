@@ -26,7 +26,7 @@ void LoadFromSav() {
     } else {
         SFX = true;
     }
-    fclose(savfile);    
+    fclose(savfile);
 }
 
 void CheckForSav() {
@@ -46,7 +46,7 @@ void CheckForSav() {
             fprintf(savfile, "%c", write[i]);
         }        
     }
-    fclose(savfile);    
+    fclose(savfile);
 }
 
 void SaveHighScore() {
@@ -70,15 +70,18 @@ void DetectFATDevice() {
     if (test == NULL) {
         test = fopen("usb:/apps/SnakeWii/TEST", "w+");
         if (test == NULL) {
+            fclose(test);
             exit(0);
         } else {
             PATHSETTINGS = "usb:/apps/SnakeWii/Settings.sav";
             PATHHISCORE = "usb:/apps/SnakeWii/HighScore.sav";
+            fclose(test);
+            remove("usb:/apps/SnakeWii/TEST");
         }
     } else {
         PATHSETTINGS = "sd:/apps/SnakeWii/Settings.sav";
         PATHHISCORE = "sd:/apps/SnakeWii/HighScore.sav";
+        fclose(test);
+        remove("sd:/apps/SnakeWii/TEST");
     }
-    fclose(test);
-    remove("sd:/apps/SnakeWii/TEST");
 }

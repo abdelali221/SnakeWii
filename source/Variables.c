@@ -1,6 +1,5 @@
 #include "Variables.h"
 
-bool Resume = false;
 bool GenBall = true;
 bool Start = false;
 bool PressedButton = false;
@@ -29,4 +28,4 @@ uint8_t counter = 0;
 uint8_t Selection = 0;
 uint8_t HighScore = 10;
 
-uint8_t SnakePOSbuffer[1920][2];
+uint8_t SnakePOSbuffer[1000][2];

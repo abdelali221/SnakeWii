@@ -1,6 +1,7 @@
 #include "UI.h"
 #include "WiiLibs.h"
 #include "Utils.h"
+#include "SnakeUtils.h"
 #include "Variables.h"
 #include "Audio.h"
 #include "WiiVT.h"
@@ -10,7 +11,7 @@
 uint8_t MenuSelect = 0;
 const uint8_t konamicode[9] = {1, 2, 2, 3, 4, 3, 4, 5, 6};
 
-int Pause() {
+void Pause() {
 	ClearScreen();
 	POSCursor(36, 10);
 	printf("Paused!");
@@ -40,17 +41,21 @@ int Pause() {
 			doPause = false;
 			break;
 		} else if (pressed == MINUS) {
-			return -1;
+			doPause = false;
+			Lives = 0;
+			Loose();
+			return;
 		} else if (pressed == HOME) {
-			return -2;
+			ingame = false;
+			return;
 		}
 	}
-	return 0;
 }
 
 void MainMenu() {
 	while (1)
-	{	ClearScreen();
+	{	
+		ClearScreen();
 		POSCursor(3, 2);
 		printf("  /$$$$$$  /$$   /$$  /$$$$$$  /$$   /$$ /$$$$$$$$ /$$      /$$ /$$ /$$");
 		POSCursor(3, 3);
@@ -200,10 +205,8 @@ void DifficultySelect() {
 
 void GameOver() {
 	Lives = 3;
-	doPause = false;
 	POSCursor(34, 10);
 	printf("Game Over!");
-	
 	if (Score > HighScore) {
 		POSCursor(28, 12);
 		printf("New High Score : %d !", Score);
