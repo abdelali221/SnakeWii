@@ -4,25 +4,26 @@
 #include "SnakeUtils.h"
 #include "Variables.h"
 #include "Audio.h"
-#include "WiiVT.h"
+#include "Video.h"
 #include "Input.h"
 #include "SaveFile.h"
 
-uint8_t MenuSelect = 0;
+int8_t MenuSelect = 0;
 const uint8_t konamicode[9] = {1, 2, 2, 3, 4, 3, 4, 5, 6};
 
 void Pause() {
 	ClearScreen();
-	POSCursor(36, 10);
-	printf("Paused!");
-	POSCursor(30, 12);
-	printf("+ : Resume");
-	POSCursor(30, 14);
-	printf("- : End the game");
-	POSCursor(30, 16);
-	printf("HOME : Main Menu");
 	Play(PAUSE);
 	while (1) {
+		POSCursor(36, 10);
+		textprint("Paused!");
+		POSCursor(30, 12);
+		textprint("+ : Resume");
+		POSCursor(30, 14);
+		textprint("- : End the game");
+		POSCursor(30, 16);
+		textprint("HOME : Main Menu");
+		RenderBuffer();
 		int pressed = CheckWPAD();
 
 		if (pressed == PLUS) {
@@ -31,12 +32,10 @@ void Pause() {
 			ClearScreen();
 			RenderBorders(false, false);
 			for (size_t i = 1; i < SnakeLength; i++) {
-				POSCursor(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
-				printf("#");
+				DrawSnake(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
 			}
 			if (!BallEaten && !GenBall) {
-				POSCursor(BallX, BallY);
-				printf("O");
+				DrawBall(BallX, BallY);
 			}
 			doPause = false;
 			break;
@@ -55,126 +54,113 @@ void Pause() {
 void MainMenu() {
 	while (1)
 	{	
-		ClearScreen();
-		POSCursor(3, 2);
-		printf("  /$$$$$$  /$$   /$$  /$$$$$$  /$$   /$$ /$$$$$$$$ /$$      /$$ /$$ /$$");
-		POSCursor(3, 3);
-		printf(" /$$__  $$| $$$ | $$ /$$__  $$| $$  /$$/| $$_____/| $$  /$ | $$|__/|__/");
-		POSCursor(3, 4);
-		printf("| $$   __/| $$$$| $$| $$    $$| $$ /$$/ | $$      | $$ /$$$| $$ /$$ /$$");
-		POSCursor(3, 5);
-		printf("|  $$$$$$ | $$ $$ $$| $$$$$$$$| $$$$$/  | $$$$$   | $$/$$ $$ $$| $$| $$"); 
-		POSCursor(3, 6);
-		printf("  ____  $$| $$  $$$$| $$__/ $$| $$  $$  | $$__/   | $$$$_  $$$$| $$| $$");
-		POSCursor(3, 7);
-		printf(" /$$    $$| $$   $$$| $$  | $$| $$   $$ | $$      | $$$/    $$$| $$| $$ ");
-		POSCursor(3, 8);
-		printf("|  $$$$$$/| $$    $$| $$  | $$| $$    $$| $$$$$$$$| $$/      $$| $$| $$");
-		POSCursor(3, 9);
-		printf("  ______/ |__/   __/|__/  |__/|__/   __/|________/|__/      __/|__/|__/ ");
-		POSCursor(68, 10);
-		printf("Ver %s", VER);
-		POSCursor(28, 12);
-		if (doPause) {
-			printf("Resume Game");
-		} else {
-			printf("New Game");
-		}
-		POSCursor(28, 14);
-		printf("Settings");
-		POSCursor(28, 16);
-		printf("Game Speed");
-		POSCursor(28, 18);
-		printf("Credits");
-		POSCursor(28, 20);
-		printf("Exit");
-		POSCursor(25, 12 + MenuSelect);
-		printf(">");
-		POSCursor(55, 15);
-		printf("High Score : %d", HighScore);
-		while(1) {
-			int pressed = CheckWPAD();
+		int pressed = CheckWPAD();
 
-			if (pressed == DOWN && MenuSelect < 8) {
-				POSCursor(25, 12 + MenuSelect);
-				printf(" ");
-				MenuSelect = MenuSelect + 2;
-				POSCursor(25, 12 + MenuSelect);
-				printf(">");
-				Play(SELECT);
-			} else if (pressed == UP && MenuSelect > 0) {
-				POSCursor(25, 12 + MenuSelect);
-				printf(" ");
-				MenuSelect = MenuSelect - 2;
-				POSCursor(25, 12 + MenuSelect);
-				printf(">");
-				Play(SELECT);
-			} else if ( (pressed == b_A) || (pressed == TWO) ) {
-				ClearScreen();
-				switch (MenuSelect)
-				{
-					case 0:
-						RunGame();
-					break;
+		if (pressed == DOWN && MenuSelect < 8) {
+			MenuSelect = MenuSelect + 2;
+			Play(SELECT);
+		} else if (pressed == UP && MenuSelect > 0) {
+			MenuSelect = MenuSelect - 2;
+			Play(SELECT);
+		} else if ( (pressed == b_A) || (pressed == TWO) ) {
+			ClearScreen();
+			switch (MenuSelect)
+			{
+				case 0:
+					RunGame();
+				break;
 
-					case 2:
-						Settings();
-					break;
-					
-					case 4:
-						if (!doPause)
-							DifficultySelect();
-					break;
+				case 2:
+					Settings();
+				break;
+				
+				case 4:
+					if (!doPause)
+						DifficultySelect();
+				break;
 
-					case 6:
-						CreditsMenu();
-					break;
+				case 6:
+					CreditsMenu();
+				break;
 
-					case 8:
-						exit(0);
-					break;
+				case 8:
+					return;
+				break;
 
-					default:
-					break;
-				}
+				default:
 				break;
 			}
 		}
+		POSCursor(3, 2);
+		textprint("  /$$$$$$  /$$   /$$  /$$$$$$  /$$   /$$ /$$$$$$$$ /$$      /$$ /$$ /$$");
+		POSCursor(3, 3);
+		textprint(" /$$__  $$| $$$ | $$ /$$__  $$| $$  /$$/| $$_____/| $$  /$ | $$|__/|__/");
+		POSCursor(3, 4);
+		textprint("| $$   __/| $$$$| $$| $$    $$| $$ /$$/ | $$      | $$ /$$$| $$ /$$ /$$");
+		POSCursor(3, 5);
+		textprint("|  $$$$$$ | $$ $$ $$| $$$$$$$$| $$$$$/  | $$$$$   | $$/$$ $$ $$| $$| $$"); 
+		POSCursor(3, 6);
+		textprint("  ____  $$| $$  $$$$| $$__/ $$| $$  $$  | $$__/   | $$$$_  $$$$| $$| $$");
+		POSCursor(3, 7);
+		textprint(" /$$    $$| $$   $$$| $$  | $$| $$   $$ | $$      | $$$/    $$$| $$| $$ ");
+		POSCursor(3, 8);
+		textprint("|  $$$$$$/| $$    $$| $$  | $$| $$    $$| $$$$$$$$| $$/      $$| $$| $$");
+		POSCursor(3, 9);
+		textprint("  ______/ |__/   __/|__/  |__/|__/   __/|________/|__/      __/|__/|__/ ");
+		POSCursor(50, 10);
+		textprint("Ver 2.0");
+		POSCursor(28, 12);
+		if (doPause) {
+			textprint("Resume Game");
+		} else {
+			textprint("New Game");
+		}
+		POSCursor(28, 14);
+		textprint("Settings");
+		POSCursor(28, 16);
+		textprint("Game Speed");
+		POSCursor(28, 18);
+		textprint("Credits");
+		POSCursor(28, 20);
+		textprint("Exit");
+		POSCursor(25, 12 + MenuSelect);
+		textprint(">");
+		POSCursor(40, 15);
+		textprint("High Score : ");
+		POSCursor(50, 15);
+		valprint(HighScore);
+		POSCursor(40, 27);
+		textprint("No one is illegal."); 
+		RenderBuffer();
 	}
 }
 
 void DifficultySelect() {
 	uint8_t Selection = 0;
-	POSCursor(4, 8);
-	printf("Choose the difficulty :");
-	POSCursor(10, 10);
-	printf("Easy");
-	POSCursor(10, 12);
-	printf("Medium");
-	POSCursor(10, 14);
-	printf("Hard");
-	POSCursor(8, 10 + Selection);
-	printf(">");
-	while(1) {
+	while (1)
+	{		
+		POSCursor(4, 8);
+		textprint("Choose the difficulty :");
+		POSCursor(10, 10);
+		textprint("Easy");
+		POSCursor(10, 12);
+		textprint("Medium");
+		POSCursor(10, 14);
+		textprint("Hard");
+		POSCursor(8, 10 + Selection);
+		textprint(">");
+		POSCursor(40, 27);
+		textprint("No one is illegal."); 
 		int pressed = CheckWPAD();
 
 		if (pressed == DOWN && Selection < 4) {
-			POSCursor(8, 10 + Selection);
-			printf(" ");
 			Selection = Selection + 2;
-			POSCursor(8, 10 + Selection);
-			printf(">");
 			Play(SELECT);
 		} else if (pressed == UP && Selection > 0) {
-			POSCursor(8, 10 + Selection);
-			printf(" ");
 			Selection = Selection - 2;
-			POSCursor(8, 10 + Selection);
-			printf(">");
 			Play(SELECT);
 		} else if (pressed == b_A || pressed == TWO) {
 			ClearScreen();
-			 
 			switch (Selection)
 			{
 				case 0:
@@ -198,33 +184,44 @@ void DifficultySelect() {
 			return;
 		} else if (pressed == b_B || pressed == ONE) {
 			ClearScreen();
-			break;
+			return;
 		}
+		RenderBuffer();
 	}
 }
 
 void GameOver() {
 	Lives = 3;
-	POSCursor(34, 10);
-	printf("Game Over!");
-	if (Score > HighScore) {
-		POSCursor(28, 12);
-		printf("New High Score : %d !", Score);
-		HighScore = Score;
-		SaveHighScore();
-	} else {
-		POSCursor(32, 12);
-		printf("Your Score : %d", Score);
-	}
-	Score = 0;
-	POSCursor(21, 14);
-	printf("Press A (or 2) to go back to the menu.");
-	while (true) {
+	while (1)
+	{
+		POSCursor(34, 10);
+		textprint("Game Over!");
+		if (Score > HighScore) {
+			POSCursor(28, 12);
+			textprint("New High Score :       !");
+			POSCursor(38, 12);
+			valprint(HighScore);
+		} else {
+			POSCursor(32, 12);
+			textprint("Your Score : ");
+			POSCursor(42, 12);
+			valprint(Score);
+		}
+		Score = 0;
+		POSCursor(21, 14);
+		textprint("Press A (or 2) to go back to the menu.");
+		POSCursor(40, 27);
+		textprint("No one is illegal."); 
+		RenderBuffer();
 		int pressed = CheckWPAD();
 		if (pressed == b_A || pressed == TWO) {
+			if (Score > HighScore) {
+				HighScore = Score;
+				SaveHighScore();
+			}
 			return;
 		}
-	}
+	}		
 }
 
 void donut() {
@@ -235,9 +232,11 @@ void donut() {
     char b[1760];
     ClearScreen();
 	POSCursor(8, 24);
-	printf("Credits : Andy Sloane (AIKON), donut.c author.");
+	textprint("Credits : Andy Sloane (AIKON), donut.c author.");
 	POSCursor(17, 26);
-	printf("Music by Jogeir Liljedahl.");
+	textprint("Music by Jogeir Liljedahl.");
+	POSCursor(40, 27);
+	textprint("No one is illegal."); 
 	Play(DONUT);
 	while (1) {
     	memset(b,32,1760);
@@ -265,7 +264,7 @@ void donut() {
                 }
             }
         }
-        printf("\x1b[H");
+        textprint("\x1b[H");
         for(k = 0; k < 1761; k++) {
             putchar(k % 80 ? b[k] : 10);
             A += 0.00004;
@@ -282,21 +281,24 @@ void donut() {
 }
 
 void CreditsMenu() {
-	POSCursor(4, 2);
-	printf("SnakeWii, Developed by Abdelali221.");
-	POSCursor(5, 6);
-	printf("This game is entirely open source, if you want to port it");
-	POSCursor(2, 8);
-	printf("just make sure to give credits to the original coder (Abdelali221).");
-	POSCursor(4, 12);
-	printf("Special thanks to :");
-	POSCursor(4, 14);
-	printf("- Posifurg : Sound files.");
-	POSCursor(8, 22);
-	printf("Github : https://github.com/abdelali221/SnakeWii/");
-	POSCursor(8, 24);
-	printf("Press B (1) to go back...");
 	while (true) {
+		POSCursor(4, 2);
+		textprint("SnakeWii, Developed by Abdelali221.");
+		POSCursor(5, 6);
+		textprint("This game is entirely open source, if you want to port it");
+		POSCursor(2, 8);
+		textprint("just make sure to give credits to the original coder (Abdelali221).");
+		POSCursor(4, 12);
+		textprint("Special thanks to :");
+		POSCursor(4, 14);
+		textprint("- Posifurg : Sound files.");
+		POSCursor(8, 22);
+		textprint("Github : https://github.com/abdelali221/SnakeWii/");
+		POSCursor(8, 24);
+		textprint("Press B (1) to go back...");
+		POSCursor(40, 27);
+		textprint("No one is illegal."); 
+		RenderBuffer();
 		int pressed = CheckWPAD();
 		if (pressed == b_B || pressed == ONE) {
 			ClearScreen();
@@ -337,67 +339,60 @@ void Settings() {
 	uint8_t Selection = 0;
 	while (1) {
 		POSCursor(20, 5);
-		printf("Settings :");
+		textprint("Settings :");
 		POSCursor(25, 10);
-		printf("WiiMote : ");
+		textprint("WiiMote : ");
+		POSCursor(35, 10);
 		if (WPADType) {
-			printf("Vertical  ");
+			textprint("Vertical  ");
 		} else {
-			printf("Horizontal");
+			textprint("Horizontal");
 		}
 		POSCursor(25, 12);
-		printf("SFX : ");
+		textprint("SFX : ");
+		POSCursor(31, 12);
 		if (SFX) {
-			printf("ON ");
+			textprint("ON");
 		} else {
-			printf("OFF");
+			textprint("OFF");
 		}
 		POSCursor(23, 10 + Selection);
-		printf(">");
-		while(1) {
-			int pressed = CheckWPAD();
-
-			if (pressed == DOWN && Selection < 2) {
-				POSCursor(23, 10 + Selection);
-				printf(" ");
-				Selection = Selection + 2;
-				POSCursor(23, 10 + Selection);
-				printf(">");
-				Play(SELECT);
-			} else if (pressed == UP && Selection > 0) {
-				POSCursor(23, 10 + Selection);
-				printf(" ");
-				Selection = Selection - 2;
-				POSCursor(23, 10 + Selection);
-				printf(">");
-				Play(SELECT);
-			} else if (pressed == b_A || pressed == TWO) {
-				switch (Selection)
-				{
-					case 0:
-						if (WPADType) {
-							WPADType = false;
-						} else {
-							WPADType = true;
-						}
-					break;
-					
-					case 2:
-						if (SFX) {
-							SFX = false;
-						} else {
-							SFX = true;
-						}
-					break;
-
-					default:
-					break;
-				}
+		textprint(">");
+		POSCursor(40, 27);
+		textprint("No one is illegal.");
+		RenderBuffer();
+		int pressed = CheckWPAD();
+		if (pressed == DOWN && Selection < 2) {
+			Selection = Selection + 2;
+			Play(SELECT);
+		} else if (pressed == UP && Selection > 0) {
+			Selection = Selection - 2;
+			Play(SELECT);
+		} else if (pressed == b_A || pressed == TWO) {
+			switch (Selection)
+			{
+				case 0:
+					if (WPADType) {
+						WPADType = false;
+					} else {
+						WPADType = true;
+					}
 				break;
-			} else if (pressed == b_B || pressed == ONE) {
-				SaveSettings();
-				return;
+				
+				case 2:
+					if (SFX) {
+						SFX = false;
+					} else {
+						SFX = true;
+					}
+				break;
+
+				default:
+				break;
 			}
+		} else if (pressed == b_B || pressed == ONE) {
+			SaveSettings();
+			return;
 		}
 	}
 }

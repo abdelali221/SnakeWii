@@ -8,7 +8,7 @@ ifeq ($(strip $(DEVKITPPC)),)
 $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
 endif
 
-include $(DEVKITPRO)/libogc2/wii_rules
+include $(DEVKITPPC)/wii_rules
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
@@ -34,7 +34,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS := -lwiiuse -lbte -lfat -lvorbisidec -logg -lasnd -logc -lm
+LIBS := -lgrrlib -lpngu `$(PREFIX)pkg-config freetype2 libpng libjpeg --libs` -lwiiuse -lbte -lfat -lvorbisidec -logg -lasnd -logc -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -125,9 +125,29 @@ $(OUTPUT).elf: $(OFILES)
 $(OFILES_SOURCES) : $(HFILES)
 
 #---------------------------------------------------------------------------------
-# This rule links in binary data with the .jpg extension
+# This rule links in binary data with the .ogg extension
 #---------------------------------------------------------------------------------
 %.ogg.o	%_ogg.h :	%.ogg
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+-include $(DEPENDS)
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .ttf extension
+#---------------------------------------------------------------------------------
+%.ttf.o	%_ttf.h :	%.ttf
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+-include $(DEPENDS)
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .png extension
+#---------------------------------------------------------------------------------
+%.png.o	%_png.h :	%.png
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	$(bin2o)

@@ -1,4 +1,4 @@
-#include "WiiVT.h"
+#include "Video.h"
 #include "WiiLibs.h"
 #include "Utils.h"
 #include "UI.h"
@@ -15,9 +15,7 @@ int main(int argc, char **argv) {
 	CheckForSav();
 	LoadFromSav();
 	ClearScreen();
-	Volume(255);
-	
-	while (1) {
-		MainMenu();
-	}
+	MainMenu();
+	GRR_Exit();
+	return 0;
 }

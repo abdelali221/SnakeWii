@@ -4,34 +4,9 @@
 #include "SnakeUtils.h"
 #include "WiiLibs.h"
 #include "Variables.h"
-#include "WiiVT.h"
+#include "Video.h"
 #include "Input.h"
 
-void VideoInit() {
-	static void *xfb = NULL;
-	static GXRModeObj *Vmode = NULL;
-
-	VIDEO_Init();
-	
-	Vmode = VIDEO_GetPreferredMode(NULL);
-
-	xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(Vmode));
-
-	console_init(xfb, 20, 20, Vmode->fbWidth, Vmode->xfbHeight, Vmode->fbWidth * VI_DISPLAY_PIX_SZ);
-
-	VIDEO_Configure(Vmode);
-
-	VIDEO_SetNextFramebuffer(xfb);
-
-	VIDEO_ClearFrameBuffer(Vmode, xfb, COLOR_BLACK);
-
-	VIDEO_SetBlack(false);
-
-	VIDEO_Flush();
-
-	VIDEO_WaitVSync();
-	if(Vmode->viTVMode&VI_NON_INTERLACE) VIDEO_WaitVSync();
-}
 
 void CheckController() {
 	int pressed = CheckWPAD();
@@ -101,9 +76,14 @@ void sleep(u32 delay) {
 }
 
 void PrintGameStats() {
-	POSCursor(0, ROWS + 2);
-	printf(" Score : %d \n", Score);
-	printf(" Lives : %d ", Lives);
+	POSCursor(1, ROWS + 2);
+	textprint(" Score : ");
+	POSCursor(10, ROWS + 2);
+	valprint(Score);
+	POSCursor(1, ROWS + 4);
+	textprint(" Lives : ");
+	POSCursor(10, ROWS + 4);
+	valprint(Lives);
 }
 
 bool Loose() {
@@ -143,7 +123,8 @@ void RunGame() {
 			RenderBorders(true, true);
 	}
 	while (1)
-	{
+	{	
+		RenderBorders(false, false);
 		if (counter < 4*(1000/Speed)) {
 			counter++;
 		} else {
@@ -158,6 +139,7 @@ void RunGame() {
 		PrintGameStats();
 		ManageSnakePos();
 		RenderSnake();
+		if (!BallEaten && !GenBall && (BallX != 0 && BallY != 0)) DrawBall(BallX, BallY);
 		VIDEO_WaitVSync();
 		if (!ingame) {
 			doPause = false;
@@ -169,5 +151,6 @@ void RunGame() {
 				return;
 			}
 		}
+		RenderBuffer();
 	}
 }

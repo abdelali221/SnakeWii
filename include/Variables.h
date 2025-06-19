@@ -1,7 +1,7 @@
 #ifndef _VARIABLES_H_
 #define _VARIABLES_H_
 #include "WiiLibs.h"
-#define HOR_OFFSET 15
+#define HOR_OFFSET 7
 #define VER_OFFSET 3
 #define VER "1.8.2"
 

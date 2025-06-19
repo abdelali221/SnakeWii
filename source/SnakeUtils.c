@@ -1,5 +1,5 @@
 #include "SnakeUtils.h"
-#include "WiiVT.h"
+#include "Video.h"
 #include "WiiLibs.h"
 #include "Variables.h"
 #include "Audio.h"
@@ -15,9 +15,10 @@ void RenderBorders(bool DELAY, bool PLAYSOUND) {
 			if ( ( (X == HOR_OFFSET || X == COLS) && (Y >= VER_OFFSET && Y <= ROWS) )|| (Y == VER_OFFSET || Y == ROWS)) {
   				POSCursor(X, Y);
 				if (DELAY) {
-  					sleep(20);
+  					sleep(10);
+					RenderBuffer();
 				}
-		  		printf("#");
+		  		textprint("#");				
   			}
 		}
 	}
@@ -28,10 +29,11 @@ void RenderBorders(bool DELAY, bool PLAYSOUND) {
 }
 
 void RenderSnake() {
-	POSCursor(SnakePOSbuffer[SnakeLength][0], SnakePOSbuffer[SnakeLength][1]);
-	printf(" ");
-	POSCursor(SnakeX, SnakeY);
-	printf("#");	
+	for (size_t i = 0; i < SnakeLength; i++)
+	{
+		if (SnakePOSbuffer[i][0] != 0 && SnakePOSbuffer[i][1] != 0)
+			DrawSnake(SnakePOSbuffer[i][0], SnakePOSbuffer[i][1]);
+	}
 	SnakePOSbuffer[0][0] = SnakeX;
 	SnakePOSbuffer[0][1] = SnakeY;
 	for (size_t i = SnakeLength; i > 0; i--) {
@@ -85,6 +87,4 @@ void GenerateBall() {
 	BallEaten = false;
 	ANSBallX = BallX;
 	ANSBallY = BallY;
-	POSCursor(BallX, BallY);
-	printf("O");
 }

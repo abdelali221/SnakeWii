@@ -1,68 +1,78 @@
 #include "SaveFile.h"
 #include "Variables.h"
-#include "WiiVT.h"
+#include "Video.h"
 
 char* PATHHISCORE;
 char* PATHSETTINGS;
 FILE* savfile;
+bool nosave = false;
 
 void LoadFromSav() {
-    HighScore = 0;
-    savfile = fopen(PATHHISCORE, "r");
-    HighScore = getw(savfile);
-    fclose(savfile);
+    if (!nosave) {
+        HighScore = 0;
+        savfile = fopen(PATHHISCORE, "r");
+        HighScore = getw(savfile);
+        fclose(savfile);
 
-    char data[2];
-    savfile = fopen(PATHSETTINGS, "r");
-    fread(data, sizeof(data), 2, savfile);
-    if (data[0] == '0') {
-        WPADType = false;
-    } else {
-        WPADType = true;
-    }
+        char data[2];
+        savfile = fopen(PATHSETTINGS, "r");
+        fread(data, sizeof(data), 2, savfile);
+        if (data[0] == '0') {
+            WPADType = false;
+        } else {
+            WPADType = true;
+        }
 
-    if (data[1] == '0') {
-        SFX = false;
-    } else {
-        SFX = true;
+        if (data[1] == '0') {
+            SFX = false;
+        } else {
+            SFX = true;
+        }
+        fclose(savfile);
     }
-    fclose(savfile);
 }
 
 void CheckForSav() {
-    savfile = fopen(PATHHISCORE, "r");
-    if (savfile == NULL) {
-        savfile = fopen(PATHHISCORE, "w+");
-        putw(0, savfile);
-    }
-    fclose(savfile);
+    if (!nosave)
+    {    
+        savfile = fopen(PATHHISCORE, "r");
+        if (savfile == NULL) {
+            savfile = fopen(PATHHISCORE, "w+");
+            putw(0, savfile);
+        }
+        fclose(savfile);
 
-    savfile = fopen(PATHSETTINGS, "r");
-    if (savfile == NULL) {
+        savfile = fopen(PATHSETTINGS, "r");
+        if (savfile == NULL) {
+            char write[2] = {(WPADType + 48), (SFX + 48)};
+            savfile = fopen(PATHSETTINGS, "w+");
+            for (size_t i = 0; i < sizeof(write); i++)
+            {
+                fprintf(savfile, "%c", write[i]);
+            }        
+        }
+        fclose(savfile);
+    }
+}
+
+void SaveHighScore() {
+    if (!nosave) {
+        savfile = fopen(PATHHISCORE, "w");
+        putw(HighScore, savfile);
+        fclose(savfile);
+    }
+}
+
+void SaveSettings() {
+    if (!nosave) {
         char write[2] = {(WPADType + 48), (SFX + 48)};
-        savfile = fopen(PATHSETTINGS, "w+");
+        savfile = fopen(PATHSETTINGS, "w");
         for (size_t i = 0; i < sizeof(write); i++)
         {
             fprintf(savfile, "%c", write[i]);
         }        
+        fclose(savfile);
     }
-    fclose(savfile);
-}
-
-void SaveHighScore() {
-    savfile = fopen(PATHHISCORE, "w");
-    putw(HighScore, savfile);
-    fclose(savfile);
-}
-
-void SaveSettings() {
-    char write[2] = {(WPADType + 48), (SFX + 48)};
-    savfile = fopen(PATHSETTINGS, "w");
-    for (size_t i = 0; i < sizeof(write); i++)
-    {
-        fprintf(savfile, "%c", write[i]);
-    }        
-    fclose(savfile);
 }
 
 void DetectFATDevice() {
@@ -71,7 +81,7 @@ void DetectFATDevice() {
         test = fopen("usb:/apps/SnakeWii/TEST", "w+");
         if (test == NULL) {
             fclose(test);
-            exit(0);
+            nosave = true;
         } else {
             PATHSETTINGS = "usb:/apps/SnakeWii/Settings.sav";
             PATHHISCORE = "usb:/apps/SnakeWii/HighScore.sav";

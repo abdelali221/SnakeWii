@@ -1,5 +1,5 @@
 #include "Audio.h"
-#include "WiiVT.h"
+#include "Video.h"
 #include "oggplayer.h"
 #include "Utils.h"
 #include "Variables.h"
