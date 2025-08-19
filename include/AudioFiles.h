@@ -13,8 +13,7 @@
 #define PAUSE 9
 #define RESUME 10
 #define SELECT 11
-#define DONUT 12
-#define SUBSELECT 13
-#define BACK 14
+#define SUBSELECT 12
+#define BACK 13
 
 #endif

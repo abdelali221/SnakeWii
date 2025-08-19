@@ -15,9 +15,8 @@
 #include "pause_ogg.h" // 9
 #include "resume_ogg.h" // 10
 #include "select_ogg.h" // 11
-#include "donut_ogg.h" // 12
-#include "subselect_ogg.h" // 13
-#include "back_ogg.h" // 14
+#include "subselect_ogg.h" // 12
+#include "back_ogg.h" // 13
 
 void Play(uint8_t ID) {
     if (SFX) {
@@ -67,16 +66,12 @@ void Play(uint8_t ID) {
                 PlayOgg(select_ogg, select_ogg_size, 0, OGG_ONE_TIME);
                 sleep(200);
             break;
-
-            case 12:
-                PlayOgg(donut_ogg, donut_ogg_size, 0, OGG_INFINITE_TIME);
-            break;
             
-            case 13:
+            case 12:
                 PlayOgg(subselect_ogg, subselect_ogg_size, 0, OGG_ONE_TIME);
             break;
 
-            case 14:
+            case 13:
                 PlayOgg(back_ogg, back_ogg_size, 0, OGG_ONE_TIME);
             break;
             
