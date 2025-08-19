@@ -3,7 +3,5 @@
 
 void RenderSnake();
 void ManageSnakePos();
-void RenderBorders(bool DELAY, bool PLAYSOUND);
-void GenerateBall();
-
+ 
 #endif

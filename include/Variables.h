@@ -1,10 +1,11 @@
 #ifndef _VARIABLES_H_
 #define _VARIABLES_H_
 #include "WiiLibs.h"
-#define HOR_OFFSET 7
+#define HOR_OFFSET 15
 #define VER_OFFSET 3
-#define VER "1.8.2"
+#define VER "1.8.4"
 
+extern bool Resume;
 extern bool GenBall;
 extern bool Start;
 extern bool PressedButton;
@@ -29,6 +30,6 @@ extern uint16_t SnakeLength;
 extern uint8_t counter;
 extern uint8_t HighScore;
 
-extern uint8_t SnakePOSbuffer[1000][2];
+extern uint8_t SnakePOSbuffer[1920][2];
 
 #endif

@@ -1,5 +1,5 @@
 #include "Audio.h"
-#include "Video.h"
+#include "WiiVT.h"
 #include "oggplayer.h"
 #include "Utils.h"
 #include "Variables.h"
@@ -16,6 +16,8 @@
 #include "resume_ogg.h" // 10
 #include "select_ogg.h" // 11
 #include "donut_ogg.h" // 12
+#include "subselect_ogg.h" // 13
+#include "back_ogg.h" // 14
 
 void Play(uint8_t ID) {
     if (SFX) {
@@ -69,6 +71,15 @@ void Play(uint8_t ID) {
             case 12:
                 PlayOgg(donut_ogg, donut_ogg_size, 0, OGG_INFINITE_TIME);
             break;
+            
+            case 13:
+                PlayOgg(subselect_ogg, subselect_ogg_size, 0, OGG_ONE_TIME);
+            break;
+
+            case 14:
+                PlayOgg(back_ogg, back_ogg_size, 0, OGG_ONE_TIME);
+            break;
+            
             
             default:
             break;
