@@ -9,5 +9,6 @@
         "utils.h": "c",
         "audio.h": "c",
         "oggplayer.h": "c"
-    }
+    },
+    "makefile.configureOnOpen": false
 }

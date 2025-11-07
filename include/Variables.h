@@ -3,7 +3,7 @@
 #include "WiiLibs.h"
 #define HOR_OFFSET 15
 #define VER_OFFSET 3
-#define VER "1.8.4"
+#define VER "1.8.5"
 
 extern bool Resume;
 extern bool GenBall;
