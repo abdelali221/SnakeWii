@@ -7,7 +7,7 @@ Just use the D-pad (Hold the Wiimote Vertically) to move the snake and avoid tou
 
 # Special thanks : 
 
-@Posifurg : Beta-Tester, Sounds
+@Posifurg : Contributor, Beta-Tester, Sounds
 
 
 This game is just an exercise i gave to myself to learn C and homebrew coding.
