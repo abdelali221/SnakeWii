@@ -6,7 +6,4 @@ void POSCursor(uint8_t X, uint8_t Y) {
 
 void ClearScreen() {
 	printf("\x1b[2J");
-	POSCursor(58, 27);
-	printf("No one is illegal.");
-	POSCursor(1, 1);
 }
